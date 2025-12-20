@@ -1,10 +1,54 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>你好，GitHub</title>
-  </head>
-  <body>
-    <h1>覺得厲害</h1>
-  </body>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>經典卡抽卡 Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>經典卡抽卡</h1>
+      <p class="subtitle">透過 HTTP 取得最新卡池，簡單抽卡互動</p>
+    </header>
+
+    <main class="app-main">
+      <section class="card-display" id="cardDisplay">
+        <div class="card-inner">
+          <div class="card-image-wrapper" id="cardImageWrapper">
+            <img id="cardImage" alt="卡牌圖片" />
+          </div>
+          <h2 id="cardName" class="card-name">請先抽一張卡</h2>
+          <p id="cardDescription" class="card-description">
+            點擊下方「抽卡」按鈕，從最新卡池中隨機抽取一張經典卡。
+          </p>
+        </div>
+      </section>
+
+      <section class="controls">
+        <button id="drawButton" class="btn primary" disabled>
+          抽卡
+        </button>
+        <button id="reloadButton" class="btn secondary">
+          重新載入卡池
+        </button>
+      </section>
+
+      <section class="status">
+        <p id="statusText">正在初始化...</p>
+        <label class="toggle">
+          <input type="checkbox" id="toggleImage" checked />
+          <span>顯示卡牌圖片（若有）</span>
+        </label>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示與抽卡互動。</small>
+    </footer>
+  </div>
+
+  <script src="main.js"></script>
+</body>
 </html>

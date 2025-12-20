@@ -1,0 +1,193 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #f5f5f7;
+  color: #222;
+}
+
+.app {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-inner {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.card-image-wrapper {
+  width: 100%;
+  max-height: 260px;
+  overflow: hidden;
+  border-radius: 12px;
+  display: none; /* 預設不顯示，JS 會依需要控制 */
+}
+
+.card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-name {
+  margin: 0;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.card-description {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* 控制區域 */
+.controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.2s;
+}
+
+.btn.primary {
+  background: #0066ff;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 102, 255, 0.35);
+}
+
+.btn.secondary {
+  background: #e0e0e5;
+  color: #333;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* 狀態區域 */
+.status {
+  font-size: 0.85rem;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+}
+
+/* 頁尾 */
+.app-footer {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* 小動畫 */
+.card-inner.fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 大螢幕稍微放大一點 */
+@media (min-width: 768px) {
+  .app {
+    max-width: 600px;
+    padding: 24px;
+  }
+
+  .card-inner {
+    padding: 20px;
+  }
+
+  .card-name {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "愚者",
+    "description": "新的開始、冒險、自由。試著放下包袱，允許自己踏出第一步。",
+    "image": "cards/fool.jpg"
+  },
+  {
+    "id": 2,
+    "name": "魔術師",
+    "description": "創造力與行動力正在集結，你有能力把想法變成實際行動。",
+    "image": "cards/magician.jpg"
+  },
+  {
+    "id": 3,
+    "name": "隱者",
+    "description": "暫時遠離外界聲音，留一點時間給內在的寧靜與反思。",
+    "image": null
+  }
+]
