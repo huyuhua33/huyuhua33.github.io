@@ -14,35 +14,48 @@
     </header>
 
     <main class="app-main">
-      <section class="card-display" id="cardDisplay">
-        <div class="card-inner">
-          <div class="card-image-wrapper" id="cardImageWrapper">
-            <img id="cardImage" alt="卡牌圖片" />
-          </div>
-          <h2 id="cardName" class="card-name">請先抽一張卡</h2>
-          <p id="cardDescription" class="card-description">
-            點擊下方「抽卡」按鈕，從最新卡池中隨機抽取一張經典卡。
-          </p>
-        </div>
-      </section>
+  <!-- 卡組區：idle 顯示牌背 + 點擊抽卡 -->
+  <section class="deck-section">
+    <div id="deck" class="deck-stack">
+      <img src="deck-back.png" alt="卡牌背面" />
+    </div>
+    <button id="shuffleButton" class="btn secondary small">
+      洗牌
+    </button>
+  </section>
 
-      <section class="controls">
-        <button id="drawButton" class="btn primary" disabled>
-          抽卡
-        </button>
-        <button id="reloadButton" class="btn secondary">
-          重新載入卡池
-        </button>
-      </section>
+  <!-- 抽出後顯示的卡 -->
+  <section class="card-display" id="cardDisplay">
+    <div class="card-inner">
+      <div class="card-image-wrapper" id="cardImageWrapper">
+        <img id="cardImage" alt="卡牌圖片" />
+      </div>
+      <h2 id="cardName" class="card-name">請先從卡組抽一張卡</h2>
+      <p id="cardDescription" class="card-description">
+        點擊上方卡組即可抽卡，也可以先按「洗牌」看看效果。
+      </p>
+    </div>
+  </section>
 
-      <section class="status">
-        <p id="statusText">正在初始化...</p>
-        <label class="toggle">
-          <input type="checkbox" id="toggleImage" checked />
-          <span>顯示卡牌圖片（若有）</span>
-        </label>
-      </section>
-    </main>
+  <section class="controls">
+    <!-- 如果你願意，這個「抽卡」按鈕可以保留當作輔助 -->
+    <button id="drawButton" class="btn primary" disabled>
+      抽卡
+    </button>
+    <button id="reloadButton" class="btn secondary">
+      重新載入卡池
+    </button>
+  </section>
+
+  <section class="status">
+    <p id="statusText">正在初始化...</p>
+    <label class="toggle">
+      <input type="checkbox" id="toggleImage" checked />
+      <span>顯示卡牌圖片（若有）</span>
+    </label>
+  </section>
+</main>
+
 
     <footer class="app-footer">
       <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示與抽卡互動。</small>
