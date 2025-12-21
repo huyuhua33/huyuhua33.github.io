@@ -72,6 +72,10 @@ body {
   overflow: hidden;
 
   display: none;           /* JS 控制顯示 */
+
+  box-shadow:              /* 卡牌感 */
+  0 10px 30px rgba(0,0,0,0.25);
+  background: #111;
 }
 
 .card-image-wrapper img {
