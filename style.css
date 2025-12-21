@@ -65,16 +65,20 @@ body {
 
 .card-image-wrapper {
   width: 100%;
-  max-height: 300px;
-  overflow: hidden;
+  max-width: 420px;        /* 電腦不會太大 */
+  margin: 0 auto;
+
   border-radius: 12px;
-  display: none; /* 預設不顯示，JS 會依需要控制 */
+  overflow: hidden;
+
+  display: none;           /* JS 控制顯示 */
 }
 
 .card-image-wrapper img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;            /* 關鍵：高度自動 */
+  max-height: 75vh;        /* 手機不超過畫面 */
+  object-fit: contain;     /* 完整顯示，不裁切 */
   display: block;
 }
 
