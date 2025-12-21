@@ -65,7 +65,7 @@ body {
 
 .card-image-wrapper {
   width: 100%;
-  max-height: 260px;
+  max-height: 300px;
   overflow: hidden;
   border-radius: 12px;
   display: none; /* 預設不顯示，JS 會依需要控制 */
