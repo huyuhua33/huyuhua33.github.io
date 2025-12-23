@@ -1,7 +1,7 @@
 // === 設定區 ===
 // 請將此 URL 改成你實際放置 cards.json 的 HTTP 路徑
 // 若 cards.json 與此頁面放在同一個資料夾，可用 './cards.json'
-const CARDS_URL = "./cards.json";
+const CARDS_URL = "./cards_filled.json";
 
 // === 狀態變數 ===
 let cardPool = [];
