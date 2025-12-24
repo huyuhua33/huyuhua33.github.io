@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>經典卡抽卡 Web App</title>
+  <title>巴哈伊經典卡</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -10,18 +10,17 @@
   <div class="app">
     <header class="app-header">
       <h1>經典卡抽卡</h1>
-      <p class="subtitle">透過 HTTP 取得最新卡池，簡單抽卡互動</p>
     </header>
 
     <main class="app-main">
   <!-- 卡組區：idle 顯示牌背 + 點擊抽卡 -->
   <section class="deck-section">
     <div id="deck" class="deck-stack">
-      <img src="./imgs/" alt="卡牌背面" />
+      <img src="./imgs/Back.png" alt="卡牌背面" />
     </div>
-    <button id="shuffleButton" class="btn secondary small">
+    <!--button id="shuffleButton" class="btn secondary small">
       洗牌
-    </button>
+    </!--button-->
   </section>
 
   <!-- 抽出後顯示的卡 -->
@@ -59,6 +58,8 @@
 
     <footer class="app-footer">
       <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示與抽卡互動。</small>
+      <br />
+      <small>Provide by Siganmorfu and Per Hy</small>
     </footer>
   </div>
 
