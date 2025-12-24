@@ -18,6 +18,9 @@ const statusTextEl = document.getElementById("statusText");
 const toggleImageEl = document.getElementById("toggleImage");
 const deckEl = document.getElementById("deck");
 const shuffleButtonEl = document.getElementById("shuffleButton");
+const cardListEl = document.getElementById("cardList");
+const cardListPanelEl = document.getElementById("cardListPanel");
+
 
 // === 初始化 ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -59,6 +62,7 @@ async function loadCardPool(force = false) {
     }
 
     cardPool = data;
+    renderCardList();
 
     if (cardPool.length === 0) {
       setStatus("卡池載入成功，但卡片數量為 0，請確認 cards.json 內容。");
@@ -164,4 +168,26 @@ function updateImageVisibility() {
   } else {
     cardImageWrapperEl.style.display = "none";
   }
+}
+
+function renderCardList() {
+  if (!cardListEl) return;
+  cardListEl.innerHTML = "";
+
+  cardPool.forEach((card, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "cardlist-item";
+    btn.type = "button";
+    btn.textContent = card.name ? card.name : `未命名卡牌 #${idx + 1}`;
+
+    btn.addEventListener("click", () => {
+      renderCard(card);              // ✅ 主頁 card view 切換到該卡
+      setStatus(`已切換顯示：${btn.textContent}`);
+
+      // ✅（可選）自動收起 list
+      if (cardListPanelEl) cardListPanelEl.open = false;
+    });
+
+    cardListEl.appendChild(btn);
+  });
 }

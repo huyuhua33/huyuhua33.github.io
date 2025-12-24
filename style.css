@@ -272,3 +272,36 @@ body {
   font-size: 0.85rem;
   flex: 0 0 auto;
 }
+
+/* 卡牌下拉清單 */
+.cardlist {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.cardlist summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cardlist-body {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.cardlist-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e8e8ef;
+  background: #fafafe;
+  cursor: pointer;
+}
+
+.cardlist-item:active {
+  transform: translateY(1px);
+}
