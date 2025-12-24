@@ -29,7 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 原本的按鈕
   drawButtonEl.addEventListener("click", onDrawCard);
-  reloadButtonEl.addEventListener("click", () => loadCardPool(true));
+  // reloadButtonEl.addEventListener("click", () => loadCardPool(true));
+  loadCardPool(true);
   toggleImageEl.addEventListener("change", updateImageVisibility);
 
   // 新增：點擊卡組抽卡
@@ -182,7 +183,7 @@ function renderCardList() {
 
     btn.addEventListener("click", () => {
       renderCard(card);              // ✅ 主頁 card view 切換到該卡
-      setStatus(`已切換顯示：${btn.textContent}`);
+      // setStatus(`已切換顯示：${btn.textContent}`);
 
       // ✅（可選）自動收起 list
       if (cardListPanelEl) cardListPanelEl.open = false;
