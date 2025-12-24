@@ -17,7 +17,7 @@ const drawButtonEl = document.getElementById("drawButton");
 const statusTextEl = document.getElementById("statusText");
 const toggleImageEl = document.getElementById("toggleImage");
 const deckEl = document.getElementById("deck");
-const shuffleButtonEl = document.getElementById("shuffleButton");
+// const shuffleButtonEl = document.getElementById("shuffleButton");
 const cardListEl = document.getElementById("cardList");
 const cardListPanelEl = document.getElementById("cardListPanel");
 
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   deckEl.addEventListener("click", onDeckClick);
 
   // 新增：洗牌按鈕
-  shuffleButtonEl.addEventListener("click", onShuffle);
+  // shuffleButtonEl.addEventListener("click", onShuffle);
 });
 
 // === 透過 HTTP 載入卡池 ===
