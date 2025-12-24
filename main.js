@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 原本的按鈕
   drawButtonEl.addEventListener("click", onDrawCard);
   // reloadButtonEl.addEventListener("click", () => loadCardPool(true));
-  loadCardPool(true);
+  // loadCardPool(true);
   toggleImageEl.addEventListener("change", updateImageVisibility);
 
   // 新增：點擊卡組抽卡
