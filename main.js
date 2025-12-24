@@ -1,8 +1,8 @@
 // === 設定區 ===
 // 請將此 URL 改成你實際放置 cards.json 的 HTTP 路徑
 // 若 cards.json 與此頁面放在同一個資料夾，可用 './cards.json'
-const CARDS_URL = "./cards.json";
-
+const CARDS_URL = "./cards_filled.json";
+const IMAGE_BASE_PATH = "./imgs"; // 👈 圖片資料夾位置
 // === 狀態變數 ===
 let cardPool = [];
 let isLoading = false;
@@ -121,9 +121,12 @@ function onShuffle() {
 // === 顯示抽到的卡 ===
 function renderCard(card) {
   const name = card.name || "未命名卡牌";
-  const description =
-    card.description || "這張卡目前沒有設定說明內容。";
-  const imageUrl = card.image || card.imageUrl || null;
+  const description = card.description || "這張卡目前沒有設定說明內容。";
+
+  // 👇 關鍵在這
+  const imageUrl = card.image
+    ? `${IMAGE_BASE_PATH}/${card.image}`
+    : null;
 
   cardNameEl.textContent = name;
   cardDescriptionEl.textContent = description;
@@ -137,13 +140,11 @@ function renderCard(card) {
     cardImageEl.removeAttribute("src");
   }
 
-  // 翻牌動畫（搭配 CSS .card-inner.flip）
   const container = cardNameEl.parentElement;
-  container.classList.remove("fade-in", "flip");
-  void container.offsetWidth; // reset 動畫
+  container.classList.remove("flip");
+  void container.offsetWidth;
   container.classList.add("flip");
 }
-
 // === 狀態列顯示 ===
 function setStatus(message) {
   statusTextEl.textContent = message;
