@@ -23,12 +23,19 @@
     <main class="app-main">
       
       <section id="testModeDisplay" class="test-card-display" style="display: none;">
-        <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
-        <div id="cardSpread" class="full-deck-grid"></div>
-        <div id="testCardDetail" class="test-card-detail">
-          <p>準備中...</p>
-        </div>
-      </section>
+  <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
+  <div id="cardSpread" class="full-deck-grid"></div>
+  
+  <div id="testCardDetail" class="test-card-detail">
+    <p>準備中...</p>
+  </div>
+
+  <div id="divinationFullResults" class="divination-full-results" style="display: none;">
+    <h3 style="margin-bottom: 20px; color: #4a90e2;">✦ 您的占卜結果 ✦</h3>
+    <div id="resultsContainer"></div>
+    <button class="btn secondary" style="margin-top: 20px; width: 100%;" onclick="renderFullDeck()">重新挑選</button>
+  </div>
+</section>
       
   <!-- 卡組區：idle 顯示牌背 + 點擊抽卡 -->
       <div id="stableModeGroup">
