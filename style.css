@@ -41,7 +41,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 16px !important; /* 強制恢復 16px 的間距 */
 }
 
 .card-display {
@@ -374,6 +374,12 @@ input:checked + .slider:before { transform: translateX(22px); }
 .divination-full-results {
   margin-top: 30px;
   padding-bottom: 40px;
+}
+
+#stableModeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .result-card-unit {
