@@ -369,3 +369,37 @@ input:checked + .slider:before { transform: translateX(22px); }
   border: 1px solid #eee; text-align: left; cursor: pointer;
 }
 .result-item:hover { background: #f0f7ff; }
+
+/* ✨ AI 新增：占卜模式結果列表樣式 (沿用原本 card-inner 的視覺感) */
+.divination-full-results {
+  margin-top: 30px;
+  padding-bottom: 40px;
+}
+
+.result-card-unit {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-left: 6px solid #4a90e2;
+  text-align: center;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.result-card-unit .card-image-wrapper {
+  max-width: 150px; /* 縮小顯示比例 */
+  margin: 0 auto 10px;
+}
+
+.result-card-unit h4 {
+  color: #4a90e2;
+  margin: 5px 0;
+  font-size: 1.1rem;
+}
+
+.result-card-unit p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #333;
+}
