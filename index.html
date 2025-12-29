@@ -10,10 +10,28 @@
   <div class="app">
     <header class="app-header">
       <h1>經典卡抽卡</h1>
+      <div class="mode-switch-container">
+        <span class="mode-label">穩定版</span>
+        <label class="switch">
+          <input type="checkbox" id="modeToggle">
+          <span class="slider round"></span>
+        </label>
+        <span class="mode-label">占卜模式 (選6張)</span>
+      </div>
     </header>
 
     <main class="app-main">
+      
+      <section id="testModeDisplay" class="test-card-display" style="display: none;">
+        <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
+        <div id="cardSpread" class="full-deck-grid"></div>
+        <div id="testCardDetail" class="test-card-detail">
+          <p>準備中...</p>
+        </div>
+      </section>
+      
   <!-- 卡組區：idle 顯示牌背 + 點擊抽卡 -->
+      <div id="stableModeGroup">
   <section class="deck-section">
     <div id="deck" class="deck-stack">
       <img src="./imgs/Back.png" alt="卡牌背面" />
@@ -41,7 +59,13 @@
       </p>
     </div>
   </section>
+</div>
 
+<details class="cardlist" id="cardListPanel">
+        <summary>卡牌清單</summary>
+        <div id="cardList" class="cardlist-body"></div>
+      </details>
+      
   <section class="controls">
     <!-- 如果你願意，這個「抽卡」按鈕可以保留當作輔助 -->
     <button id="drawButton" class="btn primary" disabled>
