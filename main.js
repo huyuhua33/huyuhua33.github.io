@@ -6,6 +6,9 @@ const IMAGE_BASE_PATH = "./imgs"; // 👈 圖片資料夾位置
 // === 狀態變數 ===
 let cardPool = [];
 let isLoading = false;
+// ✨ AI 新增：占卜模式狀態變數
+let isTestMode = false;
+let selectedIndices = [];
 
 // === DOM 取得 ===
 const cardNameEl = document.getElementById("cardName");
@@ -21,6 +24,14 @@ const deckEl = document.getElementById("deck");
 const cardListEl = document.getElementById("cardList");
 const cardListPanelEl = document.getElementById("cardListPanel");
 
+// ✨ AI 新增：占卜模式相關 DOM
+const modeToggle = document.getElementById("modeToggle");
+const stableModeGroup = document.getElementById("stableModeGroup");
+const testModeDisplay = document.getElementById("testModeDisplay");
+const cardSpread = document.getElementById("cardSpread");
+const testCardDetail = document.getElementById("testCardDetail");
+const selectionCounter = document.getElementById("selectionCounter");
+// ✨ AI 新增 End
 
 // === 初始化 ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -33,49 +44,44 @@ document.addEventListener("DOMContentLoaded", () => {
   // loadCardPool(true);
   toggleImageEl.addEventListener("change", updateImageVisibility);
 
-  // 新增：點擊卡組抽卡
-  deckEl.addEventListener("click", onDeckClick);
+// 新增：點擊卡組抽卡
+  deckEl.addEventListener("click", () => {
+    // 只有在穩定模式下，點擊大卡堆才有反應
+    if (!isTestMode) onDrawCard();
+  });
 
   // 新增：洗牌按鈕
   // shuffleButtonEl.addEventListener("click", onShuffle);
+
+  // ✨ AI 新增：模式切換監聽器
+  modeToggle.addEventListener("change", (e) => {
+    isTestMode = e.target.checked;
+    if (isTestMode) {
+      stableModeGroup.style.display = "none";
+      testModeDisplay.style.display = "block";
+      renderFullDeck(); // 切換時自動鋪開整疊牌
+    } else {
+      stableModeGroup.style.display = "block";
+      testModeDisplay.style.display = "none";
+    }
+  });
+  // ✨ AI 新增 End
 });
 
 // === 透過 HTTP 載入卡池 ===
-async function loadCardPool(force = false) {
-  if (isLoading) return;
-
+async function loadCardPool() {
   isLoading = true;
-  setStatus("正在透過 HTTP 載入最新卡池...");
-  setDrawEnabled(false);
-
+  setStatus("載入卡池中...");
   try {
-    const res = await fetch(CARDS_URL, {
-      cache: "no-store" // 避免用快取，確保每次拿到最新檔案
-    });
-
-    if (!res.ok) {
-      throw new Error(`HTTP error: ${res.status}`);
-    }
-
-    const data = await res.json();
-    if (!Array.isArray(data)) {
-      throw new Error("cards.json 格式錯誤：最外層應為陣列");
-    }
-
-    cardPool = data;
+    const res = await fetch(CARDS_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("Fetch failed");
+    cardPool = await res.json();
     renderCardList();
-
-    if (cardPool.length === 0) {
-      setStatus("卡池載入成功，但卡片數量為 0，請確認 cards.json 內容。");
-      setDrawEnabled(false);
-    } else {
-      setStatus(`已載入最新卡池：共 ${cardPool.length} 張卡，可開始抽卡。`);
-      setDrawEnabled(true);
-    }
-  } catch (error) {
-    console.error(error);
-    setStatus("載入卡池失敗，請檢查 cards.json 路徑或伺服器設定。");
-    setDrawEnabled(false);
+    setStatus(`已載入 ${cardPool.length} 張卡。`);
+    setDrawEnabled(true);
+  } catch (e) {
+    console.error(e);
+    setStatus("載入失敗，請確認 cards_filled.json 是否正確。");
   } finally {
     isLoading = false;
   }
@@ -83,15 +89,12 @@ async function loadCardPool(force = false) {
 
 // === 抽卡（共用邏輯） ===
 function onDrawCard() {
-  if (!cardPool || cardPool.length === 0) {
-    setStatus("尚未載入到有效卡池，請先確認 cards.json 是否可被存取。");
-    return;
+  if (isLoading || cardPool.length === 0) return;
+  // 穩定版維持單張抽卡
+  if (!isTestMode) {
+    const randomIndex = Math.floor(Math.random() * cardPool.length);
+    renderCard(cardPool[randomIndex]);
   }
-
-  const randomIndex = Math.floor(Math.random() * cardPool.length);
-  const card = cardPool[randomIndex];
-
-  renderCard(card);
 }
 
 // === 點擊卡組抽卡 ===
@@ -102,6 +105,77 @@ function onDeckClick() {
   }
   onDrawCard(); // 重用抽卡流程
 }
+
+// ✨ AI 新增：占卜模式 - 在桌面上鋪開所有卡片背面
+function renderFullDeck() {
+  cardSpread.innerHTML = "";
+  selectedIndices = [];
+  updateSelectionUI();
+
+  // 為了增加占卜感，我們先將索引隨機打亂，讓使用者不知道哪張是哪張
+  const shuffledIndices = [...Array(cardPool.length).keys()].sort(() => Math.random() - 0.5);
+
+  shuffledIndices.forEach((poolIndex) => {
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "mini-card";
+    
+    cardDiv.onclick = () => {
+      handleSelect(poolIndex, cardDiv);
+    };
+
+    cardSpread.appendChild(cardDiv);
+  });
+  
+  setStatus("請從上方牌陣中，憑直覺挑選 6 張卡片。");
+}
+
+// ✨ AI 新增：占卜模式 - 處理卡片點選邏輯
+function handleSelect(poolIndex, element) {
+  // 如果已經選過，再次點擊就取消
+  if (selectedIndices.includes(poolIndex)) {
+    selectedIndices = selectedIndices.filter(i => i !== poolIndex);
+    element.classList.remove("selected");
+  } 
+  // 如果還沒選滿 6 張
+  else if (selectedIndices.length < 6) {
+    selectedIndices.push(poolIndex);
+    element.classList.add("selected");
+  }
+
+  updateSelectionUI();
+}
+
+// ✨ AI 新增：占卜模式 - 更新選取進度介面
+function updateSelectionUI() {
+  const count = selectedIndices.length;
+  selectionCounter.textContent = count < 6 ? `已挑選 ${count} / 6 張` : "✦ 挑選完成 ✦";
+
+  if (count < 6) {
+    testCardDetail.innerHTML = "<p>請繼續挑選，感受卡片的訊息...</p>";
+  } else {
+    // 選滿 6 張，顯示結果列表
+    let html = `<div class="divination-results">`;
+    selectedIndices.forEach((cardIdx, i) => {
+      const card = cardPool[cardIdx];
+      html += `
+        <div class="result-item" onclick="viewDetail(${cardIdx})">
+          <strong>第 ${i + 1} 點：${card.name || "未命名"}</strong><br>
+          <small>點擊查看全文</small>
+        </div>
+      `;
+    });
+    html += `</div><button class="btn secondary small" style="margin-top:15px;" onclick="renderFullDeck()">重抽一次</button>`;
+    testCardDetail.innerHTML = html;
+  }
+}
+
+// ✨ AI 新增：點擊結果後跳轉到穩定版看全文
+window.viewDetail = function(index) {
+  renderCard(cardPool[index]);
+  stableModeGroup.style.display = "block";
+  document.getElementById("cardDisplay").scrollIntoView({ behavior: 'smooth' });
+};
+// ✨ AI 新增 End
 
 // === 洗牌動畫 ===
 function onShuffle() {
