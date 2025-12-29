@@ -150,31 +150,70 @@ function updateSelectionUI() {
   const count = selectedIndices.length;
   selectionCounter.textContent = count < 6 ? `已挑選 ${count} / 6 張` : "✦ 挑選完成 ✦";
 
+  const resultsArea = document.getElementById("divinationFullResults");
+  const container = document.getElementById("resultsContainer");
+
   if (count < 6) {
+    testCardDetail.style.display = "block";
+    resultsArea.style.display = "none";
     testCardDetail.innerHTML = "<p>請繼續挑選，感受卡片的訊息...</p>";
   } else {
-    // 選滿 6 張，顯示結果列表
-    let html = `<div class="divination-results">`;
+    // ✨ 選滿 6 張，直接在原地渲染詳細結果
+    testCardDetail.style.display = "none";
+    resultsArea.style.display = "block";
+    container.innerHTML = ""; // 清空舊結果
+
     selectedIndices.forEach((cardIdx, i) => {
       const card = cardPool[cardIdx];
-      html += `
-        <div class="result-item" onclick="viewDetail(${cardIdx})">
-          <strong>第 ${i + 1} 點：${card.name || "未命名"}</strong><br>
-          <small>點擊查看全文</small>
-        </div>
+      const cardDiv = document.createElement("div");
+      cardDiv.className = "result-card-unit";
+      
+      // 處理圖片路徑
+      const imageUrl = card.image 
+        ? (card.image.startsWith("http") ? card.image : `${IMAGE_BASE_PATH}/${card.image}`) 
+        : null;
+      
+      const imgHtml = (imageUrl && toggleImageEl.checked) 
+        ? `<div class="card-image-wrapper"><img src="${imageUrl}" style="width:100%; border-radius:8px;"></div>` 
+        : "";
+
+      // 組合 HTML 結構 (使用你原本要求的「第 X 張」)
+      cardDiv.innerHTML = `
+        <h4>第 ${i + 1} 張：${card.name || "未命名"}</h4>
+        ${imgHtml}
+        <p>${card.description || ""}</p>
       `;
+      
+      container.appendChild(cardDiv);
     });
-    html += `</div><button class="btn secondary small" style="margin-top:15px;" onclick="renderFullDeck()">重抽一次</button>`;
-    testCardDetail.innerHTML = html;
+
+    // 自動捲動到結果區開頭
+    resultsArea.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
-// ✨ AI 新增：點擊結果後跳轉到穩定版看全文
-window.viewDetail = function(index) {
-  renderCard(cardPool[index]);
-  stableModeGroup.style.display = "block";
-  document.getElementById("cardDisplay").scrollIntoView({ behavior: 'smooth' });
-};
+// ✨ AI 修改：原本的 renderFullDeck 也要重置顯示狀態
+function renderFullDeck() {
+  cardSpread.innerHTML = "";
+  selectedIndices = [];
+  
+  // 重置顯示區域
+  document.getElementById("divinationFullResults").style.display = "none";
+  testCardDetail.style.display = "block";
+  
+  updateSelectionUI();
+
+  // 打亂索引並鋪牌
+  const shuffledIndices = [...Array(cardPool.length).keys()].sort(() => Math.random() - 0.5);
+  shuffledIndices.forEach((poolIndex) => {
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "mini-card";
+    cardDiv.onclick = () => handleSelect(poolIndex, cardDiv);
+    cardSpread.appendChild(cardDiv);
+  });
+  
+  setStatus("請從上方牌陣中挑選 6 張卡片。");
+}
 // ✨ AI 新增 End
 
 // === 洗牌動畫 ===
