@@ -279,7 +279,6 @@ body {
   border-radius: 12px;
   padding: 10px 12px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-  gap: 16px;
 }
 
 .cardlist summary {
@@ -290,7 +289,6 @@ body {
 .cardlist-body {
   margin-top: 10px;
   display: grid;
-  gap: 8px;
 }
 
 .cardlist-item {
