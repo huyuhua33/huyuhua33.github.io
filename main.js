@@ -24,6 +24,8 @@ const deckEl = document.getElementById("deck");
 const cardListEl = document.getElementById("cardList");
 const cardListPanelEl = document.getElementById("cardListPanel");
 
+// ✨ AI 新增：取得整個狀態區塊，以便隱藏
+const mainStatusSection = document.getElementById("mainStatusSection");
 // ✨ AI 新增：占卜模式相關 DOM
 const modeToggle = document.getElementById("modeToggle");
 const stableModeGroup = document.getElementById("stableModeGroup");
@@ -56,17 +58,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✨ AI 新增：模式切換監聽器
   modeToggle.addEventListener("change", (e) => {
     isTestMode = e.target.checked;
+    
     if (isTestMode) {
+      // --- 進入 測試版/占卜模式 ---
       stableModeGroup.style.display = "none";
       testModeDisplay.style.display = "block";
-      renderFullDeck(); // 切換時自動鋪開整疊牌
+      
+      // 隱藏下方的狀態列與打勾選項 (因為測試版不需要)
+      mainStatusSection.style.display = "none";
+      
+      renderFullDeck(); 
     } else {
-      stableModeGroup.style.display = "block";
+      // --- 回到 穩定版/簡單模式 ---
+      stableModeGroup.style.display = "flex"; // 確保用 flex 恢復間距
       testModeDisplay.style.display = "none";
+      
+      // 顯示回下方的狀態列
+      mainStatusSection.style.display = "flex";
+      
+      // 🚨 關鍵修正：切換回來時，把狀態文字還原成「已載入...」
+      if (cardPool.length > 0) {
+        setStatus(`已載入最新卡池：共 ${cardPool.length} 張卡，可開始抽卡。`);
+      } else {
+        setStatus("卡池尚未載入。");
+      }
     }
   });
-  // ✨ AI 新增 End
 });
+  // ✨ AI 新增 End
 
 // === 透過 HTTP 載入卡池 ===
 async function loadCardPool() {
@@ -110,23 +129,24 @@ function onDeckClick() {
 function renderFullDeck() {
   cardSpread.innerHTML = "";
   selectedIndices = [];
+  
+  // 重置顯示區域
+  document.getElementById("divinationFullResults").style.display = "none";
+  testCardDetail.style.display = "block";
+  
   updateSelectionUI();
 
-  // 為了增加占卜感，我們先將索引隨機打亂，讓使用者不知道哪張是哪張
   const shuffledIndices = [...Array(cardPool.length).keys()].sort(() => Math.random() - 0.5);
 
   shuffledIndices.forEach((poolIndex) => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mini-card";
-    
-    cardDiv.onclick = () => {
-      handleSelect(poolIndex, cardDiv);
-    };
-
+    cardDiv.onclick = () => handleSelect(poolIndex, cardDiv);
     cardSpread.appendChild(cardDiv);
   });
   
-  setStatus("請從上方牌陣中，憑直覺挑選 6 張卡片。");
+  // 這裡不需要 setStatus 了，因為底下的狀態列已經被隱藏
+  // 提示文字由 updateSelectionUI 控制上方的 selectionCounter
 }
 
 // ✨ AI 新增：占卜模式 - 處理卡片點選邏輯
@@ -141,7 +161,6 @@ function handleSelect(poolIndex, element) {
     selectedIndices.push(poolIndex);
     element.classList.add("selected");
   }
-
   updateSelectionUI();
 }
 
