@@ -308,6 +308,19 @@ body {
 /* --- 請保留你原本的所有 CSS 內容，並在最下方貼上以下新增樣式 --- */
 
 /* ✨ AI 新增：模式切換開關樣式 */
+
+#stableModeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* 這裡確保了 卡組、清單、顯示區 之間的距離 */
+  width: 100%;
+}
+
+/* 確保隱藏時真的不佔空間 */
+#stableModeGroup[style*="display: none"] {
+  display: none !important;
+}
+
 .mode-switch-container {
   display: flex; align-items: center; justify-content: center;
   gap: 12px; margin-top: 10px;
@@ -373,12 +386,6 @@ input:checked + .slider:before { transform: translateX(22px); }
 .divination-full-results {
   margin-top: 30px;
   padding-bottom: 40px;
-}
-
-#stableModeGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 .result-card-unit {
