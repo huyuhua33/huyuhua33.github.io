@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cardPool.length > 0) {
         setStatus(`已載入最新卡池：共 ${cardPool.length} 張卡，可開始抽卡。`);
       } else {
-        setStatus("卡池尚未載入。");
+        setStatus("載入失敗，請確認 cards_filled.json 是否正確。");
       }
     }
   });
@@ -96,7 +96,7 @@ async function loadCardPool() {
     if (!res.ok) throw new Error("Fetch failed");
     cardPool = await res.json();
     renderCardList();
-    setStatus(`已載入 ${cardPool.length} 張卡。`);
+    setStatus(`已載入最新卡池：共 ${cardPool.length} 張卡，可開始抽卡。`);
     setDrawEnabled(true);
   } catch (e) {
     console.error(e);
