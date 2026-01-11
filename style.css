@@ -370,7 +370,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 .test-card-detail {
   background: #fff; border-radius: 12px; padding: 15px;
   margin-top: 15px; min-height: 120px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  border-top: 5px solid #4a90e2;
+  border-top: 5px solid #F0BC62;
 }
 
 .divination-results {
@@ -394,7 +394,7 @@ input:checked + .slider:before { transform: translateX(22px); }
   padding: 16px;
   margin-bottom: 20px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-left: 6px solid #F0BC62;
+  border-left: 6px solid #4a90e2;
   text-align: center;
   animation: fadeIn 0.5s ease forwards;
 }
@@ -405,7 +405,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 .result-card-unit h4 {
-  color: #F0BC62;
+  color: #4a90e2;
   margin: 5px 0;
   font-size: 1.1rem;
 }
