@@ -405,7 +405,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 .result-card-unit h4 {
-  color: #4a90e2;
+  color: #F0BC62;
   margin: 5px 0;
   font-size: 1.1rem;
 }
