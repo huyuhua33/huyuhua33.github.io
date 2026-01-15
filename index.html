@@ -9,75 +9,69 @@
 <body>
   <div class="app">
     <header class="app-header">
-      <h1>經典卡抽卡</h1>
-      <div class="mode-switch-container">
-        <span class="mode-label">簡單版</span>
-        <label class="switch">
-          <input type="checkbox" id="modeToggle">
-          <span class="slider round"></span>
-        </label>
-        <span class="mode-label">占卜版</span>
+      <div class="header-top">
+        <h1>經典卡抽卡</h1>
+        <button id="themeToggle" class="btn icon-btn" aria-label="切換主題">
+          🌙
+        </button>
+      </div>
+
+      <div class="segmented-control">
+        <input type="radio" name="mode" id="mode-simple" value="simple" checked>
+        <label for="mode-simple">簡單版</label>
+
+        <input type="radio" name="mode" id="mode-divination" value="divination">
+        <label for="mode-divination">占卜版</label>
       </div>
     </header>
 
     <main class="app-main">
       
-<section id="testModeDisplay" class="test-card-display" style="display: none;">
-  <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
-  <div id="cardSpread" class="full-deck-grid"></div>
-  
-  <div id="testCardDetail" class="test-card-detail">
-    <p>準備中...</p>
-  </div>
+      <section id="divinationModeDisplay" style="display: none;">
+        <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
+        <div id="cardSpread" class="full-deck-grid"></div>
+        
+        <div id="testCardDetail" class="test-card-detail">
+          <p>準備中...</p>
+        </div>
 
-  <div id="divinationFullResults" class="divination-full-results" style="display: none;">
-    <h3 style="margin-bottom: 20px; color: #4a90e2;">✦ 您的占卜結果 ✦</h3>
-    <div id="resultsContainer"></div>
-    <button class="btn secondary" style="margin-top: 20px; width: 100%;" onclick="renderFullDeck()">重新挑選</button>
-  </div>
-</section>
+        <div id="divinationFullResults" class="divination-full-results" style="display: none;">
+          <h3>✦ 您的占卜結果 ✦</h3>
+          <div id="resultsContainer"></div>
+          <button class="btn secondary" style="margin-top: 20px; width: 100%;" onclick="renderFullDeck()">重新挑選</button>
+        </div>
+      </section>
       
-  <!-- 卡組區：idle 顯示牌背 + 點擊抽卡 -->
-<div id="stableModeGroup">
-  <section class="deck-section">
-    <div id="deck" class="deck-stack">
-      <img src="./imgs/Back.png" alt="卡牌背面" />
-    </div>
-    <!--button id="shuffleButton" class="btn secondary small">
-      洗牌
-    </!--button-->
-  </section>
+      <div id="simpleModeGroup">
+        <section class="deck-section">
+          <div id="deck" class="deck-stack">
+            <img src="./imgs/Back.png" alt="卡牌背面" />
+          </div>
+        </section>
 
-  <details class="cardlist" id="cardListPanel">
-    <summary>卡牌清單</summary>
-    <div id="cardList" class="cardlist-body"></div>
-  </details>
+        <details class="cardlist" id="cardListPanel">
+          <summary>卡牌清單</summary>
+          <div id="cardList" class="cardlist-body"></div>
+        </details>
 
+        <section class="card-display" id="cardDisplay">
+          <div class="card-inner">
+            <div class="card-image-wrapper" id="cardImageWrapper">
+              <img id="cardImage" alt="卡牌圖片" />
+            </div>
+            <h2 id="cardName" class="card-name">請先從卡組抽一張卡</h2>
+            <p id="cardDescription" class="card-description">
+              點擊上方卡組即可抽卡。
+            </p>
+          </div>
+        </section>
 
-  <!-- 抽出後顯示的卡 -->
-  <section class="card-display" id="cardDisplay">
-    <div class="card-inner">
-      <div class="card-image-wrapper" id="cardImageWrapper">
-        <img id="cardImage" alt="卡牌圖片" />
+        <section class="controls">
+          <button id="drawButton" class="btn primary" disabled>
+            抽卡
+          </button>
+        </section>
       </div>
-      <h2 id="cardName" class="card-name">請先從卡組抽一張卡</h2>
-      <p id="cardDescription" class="card-description">
-        點擊上方卡片或下方按鈕即可抽卡。
-      </p>
-    </div>
-  </section>
-
-    <section class="controls">
-    <!-- 如果你願意，這個「抽卡」按鈕可以保留當作輔助 -->
-    <button id="drawButton" class="btn primary" disabled>
-      抽卡
-    </button>
-    <!-- <button id="reloadButton" class="btn secondary">
-      重新載入卡池
-    </button> -->
-  </section>
-  
-</div>
       
       <section class="status" id="mainStatusSection">
         <p id="statusText">正在初始化...</p>
@@ -87,7 +81,7 @@
         </label>
       </section>
       
-</main>
+    </main>
 
     <footer class="app-footer">
       <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示與抽卡互動。</small>
