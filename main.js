@@ -1,68 +1,64 @@
 // === 設定區 ===
-// 請將此 URL 改成你實際放置 cards.json 的 HTTP 路徑
-// 若 cards.json 與此頁面放在同一個資料夾，可用 './cards.json'
 const CARDS_URL = "./cards_filled.json";
-const IMAGE_BASE_PATH = "./imgs"; // 👈 圖片資料夾位置
+const IMAGE_BASE_PATH = "./imgs"; 
+
 // === 狀態變數 ===
 let cardPool = [];
 let isLoading = false;
-// ✨ AI 新增：占卜模式狀態變數
-let currentMode = "simple"; // 預設為簡單版 (simple | divination)
+let currentMode = "simple"; // simple | divination
 let selectedIndices = [];
 
 // === DOM 取得 ===
+// 共用區
 const cardNameEl = document.getElementById("cardName");
 const cardDescriptionEl = document.getElementById("cardDescription");
 const cardImageEl = document.getElementById("cardImage");
 const cardImageWrapperEl = document.getElementById("cardImageWrapper");
 const drawButtonEl = document.getElementById("drawButton");
-// const reloadButtonEl = document.getElementById("reloadButton");
 const statusTextEl = document.getElementById("statusText");
 const toggleImageEl = document.getElementById("toggleImage");
 const deckEl = document.getElementById("deck");
-// const shuffleButtonEl = document.getElementById("shuffleButton");
 const cardListEl = document.getElementById("cardList");
 const cardListPanelEl = document.getElementById("cardListPanel");
-
-const themeToggleBtn = document.getElementById("themeToggle");
-// ✨ AI 新增：取得整個狀態區塊，以便隱藏
 const mainStatusSection = document.getElementById("mainStatusSection");
-// ✨ AI 新增：占卜模式相關 DOM
-// 模式區塊 (ID 已更新)
+
+// 主題與模式切換
+const themeToggleCheckbox = document.getElementById("themeToggleCheckbox");
+
+// 模式區塊
 const simpleModeGroup = document.getElementById("simpleModeGroup");
 const divinationModeDisplay = document.getElementById("divinationModeDisplay");
+
 // 占卜版專用
 const cardSpread = document.getElementById("cardSpread");
 const testCardDetail = document.getElementById("testCardDetail");
 const selectionCounter = document.getElementById("selectionCounter");
-// ✨ AI 新增 End
 
 // === 初始化 ===
 document.addEventListener("DOMContentLoaded", () => {
   loadCardPool();
 
   // 1. 綁定抽卡事件
-  drawButtonEl.addEventListener("click", onDrawCard);
-  deckEl.addEventListener("click", () => {
-    if (currentMode === "simple") onDrawCard();
-  });
-  toggleImageEl.addEventListener("change", updateImageVisibility);
+  if(drawButtonEl) drawButtonEl.addEventListener("click", onDrawCard);
+  if(deckEl) {
+    deckEl.addEventListener("click", () => {
+      if (currentMode === "simple") onDrawCard();
+    });
+  }
+  if(toggleImageEl) toggleImageEl.addEventListener("change", updateImageVisibility);
 
-  // 2. 深色主題切換功能
-  themeToggleBtn.addEventListener("click", () => {
-    const body = document.body;
-    const currentTheme = body.getAttribute("data-theme");
-    
-    if (currentTheme === "dark") {
-      body.removeAttribute("data-theme");
-      themeToggleBtn.textContent = "🌙"; // 切換回月亮圖示
-    } else {
-      body.setAttribute("data-theme", "dark");
-      themeToggleBtn.textContent = "☀️"; // 切換為太陽圖示
-    }
-  });
+  // 2. 深色主題切換 (Toggle Switch)
+  if(themeToggleCheckbox) {
+    themeToggleCheckbox.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        document.body.setAttribute("data-theme", "dark");
+      } else {
+        document.body.removeAttribute("data-theme");
+      }
+    });
+  }
 
-  // 3. 模式切換 (監聽 Radio Button)
+  // 3. 模式切換 (Segmented Control)
   const modeRadios = document.querySelectorAll('input[name="mode"]');
   modeRadios.forEach(radio => {
     radio.addEventListener("change", (e) => {
@@ -80,19 +76,17 @@ function switchMode(mode) {
     // --- 切換到 占卜版 (Divination) ---
     simpleModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "block";
-    mainStatusSection.style.display = "none"; // 隱藏底部狀態
-    renderFullDeck(); // 初始化牌陣
+    mainStatusSection.style.display = "none"; 
+    renderFullDeck(); 
   } else {
     // --- 切換到 簡單版 (Simple) ---
-    simpleModeGroup.style.display = "flex";
+    simpleModeGroup.style.display = "flex"; // 使用 flex 以維持排版
     divinationModeDisplay.style.display = "none";
-    mainStatusSection.style.display = "flex"; // 顯示底部狀態
+    mainStatusSection.style.display = "flex";
 
-    // 還原狀態文字
+    // 更新一下文字狀態
     if (cardPool.length > 0) {
       setStatus(`已載入最新卡池：共 ${cardPool.length} 張卡，可開始抽卡。`);
-    } else {
-      setStatus("卡池尚未載入。");
     }
   }
 }
@@ -119,7 +113,7 @@ async function loadCardPool() {
 // === 簡單版：抽卡 ===
 function onDrawCard() {
   if (isLoading || cardPool.length === 0) return;
-  // 只有在簡單模式下才執行單張抽卡
+  
   if (currentMode === "simple") {
     const randomIndex = Math.floor(Math.random() * cardPool.length);
     renderCard(cardPool[randomIndex]);
@@ -128,6 +122,7 @@ function onDrawCard() {
 
 // === 占卜版：渲染完整牌陣 ===
 function renderFullDeck() {
+  if(!cardSpread) return;
   cardSpread.innerHTML = "";
   selectedIndices = [];
   
@@ -138,6 +133,7 @@ function renderFullDeck() {
   
   updateSelectionUI();
 
+  // 產生亂數排序的 index 陣列
   const shuffledIndices = [...Array(cardPool.length).keys()].sort(() => Math.random() - 0.5);
 
   shuffledIndices.forEach((poolIndex) => {
@@ -166,7 +162,9 @@ function handleSelect(poolIndex, element) {
 // === 占卜版：更新介面 ===
 function updateSelectionUI() {
   const count = selectedIndices.length;
-  selectionCounter.textContent = count < 6 ? `請繼續挑選 (${count} / 6)` : "✦ 挑選完成 ✦";
+  if(selectionCounter) {
+    selectionCounter.textContent = count < 6 ? `請繼續挑選 (${count} / 6)` : "✦ 挑選完成 ✦";
+  }
 
   const resultsArea = document.getElementById("divinationFullResults");
   const container = document.getElementById("resultsContainer");
@@ -223,18 +221,19 @@ function renderCard(card) {
     cardImageEl.removeAttribute("src");
   }
 
+  // 觸發翻牌動畫
   const container = cardNameEl.parentElement;
   container.classList.remove("flip");
-  void container.offsetWidth;
+  void container.offsetWidth; // Trigger reflow
   container.classList.add("flip");
 }
 
 function setStatus(message) {
-  statusTextEl.textContent = message;
+  if(statusTextEl) statusTextEl.textContent = message;
 }
 
 function setDrawEnabled(enabled) {
-  drawButtonEl.disabled = !enabled;
+  if(drawButtonEl) drawButtonEl.disabled = !enabled;
 }
 
 function updateImageVisibility() {
