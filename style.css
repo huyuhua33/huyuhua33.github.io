@@ -10,7 +10,6 @@
   --text-sub: #666666;
   --border-color: #eeeeee;
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --accent-color: #4a90e2;
   --transition-speed: 0.3s;
 }
 
@@ -23,7 +22,6 @@
   --text-sub: #aaaaaa;
   --border-color: #333333;
   --shadow-color: rgba(0, 0, 0, 0.5);
-  --accent-color: #6ab0ff;
 }
 
 /* =========================================
@@ -262,7 +260,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 .divination-full-results { margin-top: 20px; }
-.divination-full-results h3 { color: var(--accent-color); text-align: center; }
+.divination-full-results h3 { color: var(--primary-color); text-align: center; }
 .result-card-unit {
   background: var(--card-bg); padding: 15px; border-radius: 12px;
   margin-bottom: 15px; border: 1px solid var(--border-color);
