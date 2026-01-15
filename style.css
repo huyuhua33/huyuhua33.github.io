@@ -2,27 +2,27 @@
    1. CSS 變數定義 (主題核心)
    ========================================= */
 :root {
-  /* --- 亮色模式 (Light Mode) 預設 --- */
-  --primary-color: #03A6A6;       /* 你的品牌主色 */
-  --bg-color: #F2F2F2;            /* 網頁背景 */
-  --card-bg: #ffffff;             /* 卡片/區塊背景 */
-  --text-main: #222222;           /*主要文字 */
-  --text-sub: #666666;            /* 次要文字 */
-  --border-color: #eeeeee;        /* 邊框線條 */
-  --shadow-color: rgba(0, 0, 0, 0.1); /* 陰影顏色 */
-  --accent-color: #4a90e2;        /* 強調色 (如占卜結果標題) */
-  --transition-speed: 0.3s;       /* 切換動畫速度 */
+  /* --- 亮色模式 (預設) --- */
+  --primary-color: #03A6A6;
+  --bg-color: #f5f5f7;  /* 還原原本稍微灰一點的背景 */
+  --card-bg: #ffffff;
+  --text-main: #222222;
+  --text-sub: #666666;
+  --border-color: #eeeeee;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --accent-color: #4a90e2;
+  --transition-speed: 0.3s;
 }
 
-/* 當 body 標籤有 data-theme="dark" 時應用這些變數 */
 [data-theme="dark"] {
-  --primary-color: #82D9D9;       /* 深色模式下，主色調亮一點以增加對比 */
-  --bg-color: #121212;            /* 極深灰背景 */
-  --card-bg: #1e1e1e;             /* 卡片深灰底 */
-  --text-main: #f0f0f0;           /* 文字變白 */
-  --text-sub: #aaaaaa;            /* 次要文字淺灰 */
-  --border-color: #333333;        /* 邊框變深 */
-  --shadow-color: rgba(0, 0, 0, 0.5); /* 陰影加深 */
+  /* --- 深色模式 --- */
+  --primary-color: #82D9D9;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-main: #f0f0f0;
+  --text-sub: #aaaaaa;
+  --border-color: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.5);
   --accent-color: #6ab0ff;
 }
 
@@ -49,110 +49,107 @@ body {
 }
 
 /* =========================================
-   3. Header 與 控制器 (Segmented Control)
+   3. Header 與 開關樣式
    ========================================= */
 .app-header {
   text-align: center;
-  margin-bottom: 20px;
-}
-
-.header-top {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .app-header h1 {
-  margin: 0;
+  margin: 0 0 16px 0;
   font-size: 1.6rem;
   color: var(--text-main);
 }
 
-/* 深色模式切換按鈕 */
-#themeToggle {
-  position: absolute;
-  right: 0;
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+/* --- Segmented Control (簡單/占卜) --- */
+.segmented-control-wrapper {
+  margin-bottom: 12px;
 }
-#themeToggle:hover { background-color: var(--border-color); }
-
-/* 分段控制器 (取代舊 Switch) */
 .segmented-control {
-  display: flex;
-  position: relative;
-  background-color: rgba(0,0,0,0.05); /* 淺灰底 */
+  display: inline-flex;
+  background-color: rgba(0,0,0,0.05);
   padding: 4px;
-  border-radius: 12px;
+  border-radius: 8px;
   user-select: none;
-  width: fit-content;
-  margin: 0 auto;
   border: 1px solid var(--border-color);
 }
 [data-theme="dark"] .segmented-control {
   background-color: rgba(255,255,255,0.1);
 }
-
-.segmented-control input[type="radio"] {
-  display: none; /* 隱藏原生按鈕 */
-}
-
+.segmented-control input[type="radio"] { display: none; }
 .segmented-control label {
-  padding: 8px 24px;
+  padding: 6px 16px;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-sub);
   transition: all 0.3s ease;
-  border-radius: 8px;
+  border-radius: 6px;
 }
-
-/* 選中狀態 */
 .segmented-control input:checked + label {
   background-color: var(--card-bg);
   color: var(--primary-color);
-  box-shadow: 0 2px 8px var(--shadow-color);
+  box-shadow: 0 2px 5px var(--shadow-color);
 }
 
+/* --- Toggle Switch (淺色/深色) - 還原舊版樣式 --- */
+.theme-switch-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.mode-label {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+/* The Switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 4px; bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(24px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+
 /* =========================================
-   4. 主要內容區與容器
+   4. 主要內容區
    ========================================= */
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px !important; /* 確保間距 */
+  gap: 16px;
 }
 
-/* 簡單版容器 (原 Stable) */
-#simpleModeGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 顯示與隱藏控制 */
+#simpleModeGroup, #divinationModeDisplay {
   width: 100%;
 }
-#simpleModeGroup[style*="display: none"] { display: none !important; }
 
-/* 占卜版容器 (原 Test) */
-#divinationModeDisplay {
-  /* 預設隱藏交由 JS 控制 */
-}
-
-/* =========================================
-   5. 卡片與互動元件
-   ========================================= */
+/* 卡組區 */
 .deck-section {
   display: flex; justify-content: center; margin-bottom: 0;
 }
@@ -166,7 +163,7 @@ body {
 }
 .deck-stack:active { transform: translateY(2px) scale(0.98); }
 
-/* 卡牌清單 */
+/* 卡牌清單 (維持摺疊樣式) */
 .cardlist {
   border: 1px solid var(--border-color);
   border-radius: 8px; background: var(--card-bg);
@@ -185,26 +182,47 @@ body {
   border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 0.9rem;
   color: var(--text-main);
 }
-.cardlist-item:hover {
-  background: var(--primary-color); color: #fff; border-color: var(--primary-color);
-}
 
-/* 卡片顯示區 */
+/* --- 卡片顯示區 (還原 Simple Mode 樣式) --- */
 .card-display {
-  flex: 1; display: flex; align-items: center; justify-content: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .card-inner {
-  width: 100%; background: var(--card-bg); border-radius: 16px; padding: 16px;
-  box-shadow: 0 6px 16px var(--shadow-color); text-align: center;
+  width: 100%;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 16px var(--shadow-color);
+  text-align: center;
   border: 1px solid var(--border-color);
 }
+
+/* 確保圖片在文字上方 */
 .card-image-wrapper {
-  width: 100%; margin-bottom: 16px; border-radius: 8px; overflow: hidden; display: none;
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: none; /* 預設隱藏，由 JS 控制 */
 }
-.card-image-wrapper img { width: 100%; display: block; }
-.card-name { font-size: 1.4rem; margin: 0 0 8px; color: var(--primary-color); }
+.card-image-wrapper img {
+  width: 100%;
+  display: block;
+}
+.card-name {
+  font-size: 1.4rem;
+  margin: 0 0 8px;
+  color: var(--primary-color);
+}
 .card-description {
-  font-size: 1rem; line-height: 1.6; color: var(--text-main); white-space: pre-wrap; margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  margin: 0;
 }
 .card-inner.flip { animation: flipCard 0.4s ease-out; }
 @keyframes flipCard {
@@ -213,7 +231,7 @@ body {
 }
 
 /* =========================================
-   6. 占卜版特定樣式 (Grid & Results)
+   5. 占卜版特定樣式
    ========================================= */
 .selection-counter {
   text-align: center; font-size: 1.1rem; font-weight: bold;
@@ -256,7 +274,7 @@ body {
 }
 
 /* =========================================
-   7. 底部控制與 Footer
+   6. 底部控制與 Footer (還原樣式)
    ========================================= */
 .controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
 .btn {
@@ -272,4 +290,12 @@ body {
   margin-top: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center;
 }
 
-.toggle { display
+.toggle { display: inline-flex; align-items: center; cursor: pointer; gap: 8px; }
+
+/* Footer 還原 */
+.app-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #999;
+}
