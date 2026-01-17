@@ -2,14 +2,15 @@
    1. CSS 變數定義 (主題核心)
    ========================================= */
 :root {
-  /* --- 亮色模式 (預設) --- */
+  /* --- 亮色模式 (您的指定配色) --- */
   --primary-color: #03A6A6;
-  --bg-color: #f5f5f7;  /* 還原原本稍微灰一點的背景 */
+  --bg-color: #F2F2F2; 
   --card-bg: #ffffff;
   --text-main: #222222;
   --text-sub: #666666;
   --border-color: #eeeeee;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --accent-color: #4a90e2;
   --transition-speed: 0.3s;
 }
 
@@ -22,6 +23,7 @@
   --text-sub: #aaaaaa;
   --border-color: #333333;
   --shadow-color: rgba(0, 0, 0, 0.5);
+  --accent-color: #6ab0ff;
 }
 
 /* =========================================
@@ -51,7 +53,7 @@ body {
    ========================================= */
 .app-header {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px; /* 增加 Header 與下方的距離 */
 }
 
 .app-header h1 {
@@ -91,13 +93,13 @@ body {
   box-shadow: 0 2px 5px var(--shadow-color);
 }
 
-/* --- Toggle Switch (淺色/深色) - 還原舊版樣式 --- */
+/* --- Toggle Switch (淺色/深色) --- */
 .theme-switch-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-bottom: 15px; /* 與下方的模式切換分開一點 */
 }
 .mode-label {
   font-size: 0.9rem;
@@ -133,17 +135,28 @@ input:checked + .slider:before { transform: translateX(24px); }
 
 
 /* =========================================
-   4. 主要內容區
+   4. 主要內容區 & 簡單版容器修復
    ========================================= */
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  /* 確保切換時，最外層也有基本的間距，防止黏到底部 */
+  padding-bottom: 20px; 
+}
+
+/* 關鍵修正：確保簡單版容器是 Flex Column
+   且設定 gap 來解決「版面黏在一起」的問題
+*/
+#simpleModeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* 這裡控制各區塊（卡組、清單、顯示區、按鈕）之間的距離 */
+  width: 100%;
 }
 
 /* 顯示與隱藏控制 */
-#simpleModeGroup, #divinationModeDisplay {
+#divinationModeDisplay {
   width: 100%;
 }
 
@@ -161,7 +174,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 .deck-stack:active { transform: translateY(2px) scale(0.98); }
 
-/* 卡牌清單 (維持摺疊樣式) */
+/* 卡牌清單 */
 .cardlist {
   border: 1px solid var(--border-color);
   border-radius: 8px; background: var(--card-bg);
@@ -181,30 +194,30 @@ input:checked + .slider:before { transform: translateX(24px); }
   color: var(--text-main);
 }
 
-/* --- 卡片顯示區 (還原 Simple Mode 樣式) --- */
+/* --- 卡片顯示區 (Simple Mode) --- */
 .card-display {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 300px; /* 確保有最小高度，避免切換時瞬間塌陷 */
 }
 .card-inner {
   width: 100%;
   background: var(--card-bg);
   border-radius: 16px;
-  padding: 16px;
+  padding: 24px; /* 增加內距 */
   box-shadow: 0 6px 16px var(--shadow-color);
   text-align: center;
   border: 1px solid var(--border-color);
 }
 
-/* 確保圖片在文字上方 */
 .card-image-wrapper {
   width: 100%;
   margin-bottom: 16px;
   border-radius: 8px;
   overflow: hidden;
-  display: none; /* 預設隱藏，由 JS 控制 */
+  display: none; 
 }
 .card-image-wrapper img {
   width: 100%;
@@ -212,15 +225,16 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 .card-name {
   font-size: 1.4rem;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   color: var(--primary-color);
 }
 .card-description {
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.8;
   color: var(--text-main);
-  white-space: pre-wrap;
+  white-space: pre-wrap; /* 關鍵：保留換行與空白 */
   margin: 0;
+  text-align: left; /* 讓文字靠左閱讀比較舒適，若想置中可改 center */
 }
 .card-inner.flip { animation: flipCard 0.4s ease-out; }
 @keyframes flipCard {
@@ -233,24 +247,50 @@ input:checked + .slider:before { transform: translateX(24px); }
    ========================================= */
 .selection-counter {
   text-align: center; font-size: 1.1rem; font-weight: bold;
-  margin-bottom: 10px; color: var(--primary-color);
+  margin-bottom: 15px; color: var(--primary-color);
 }
 .full-deck-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-  gap: 8px; padding: 10px; background: rgba(0,0,0,0.03);
-  border-radius: 12px; margin-bottom: 15px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 10px; padding: 15px; 
+  /* 移除灰色背景，讓卡片直接懸浮 */
+  margin-bottom: 20px;
 }
+
+/* 修正：占卜模式的小卡樣式與動畫 
+*/
 .mini-card {
-  aspect-ratio: 2/3; background: linear-gradient(135deg, #ddd, #bbb);
-  border-radius: 4px; border: 1px solid #fff; cursor: pointer;
-  transition: all 0.3s; box-shadow: 0 2px 5px var(--shadow-color);
+  position: relative;
+  aspect-ratio: 2/3; 
+  border-radius: 6px; 
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 順滑的動畫曲線 */
+  box-shadow: 0 2px 5px var(--shadow-color);
+  transform-origin: center bottom;
 }
-.mini-card:hover { transform: translateY(-8px) scale(1.1); z-index: 10; }
+
+/* 讓裡面的圖片充滿 */
+.mini-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+/* 滑鼠移過去後微微飄起並旋轉的動畫 (還原經典效果) */
+.mini-card:hover {
+  transform: translateY(-10px) scale(1.1) rotate(2deg);
+  z-index: 10; 
+  box-shadow: 0 8px 16px var(--shadow-color);
+}
+
 .mini-card.selected {
   border: 2px solid var(--primary-color);
-  box-shadow: 0 0 10px var(--primary-color); transform: translateY(-5px);
-  background: var(--primary-color);
+  box-shadow: 0 0 10px var(--primary-color); 
+  transform: translateY(-8px);
 }
+/* 選中時加上一個遮罩讓它變暗一點點或變色，這裡用 border 其實夠了 */
+
 
 .test-card-detail {
   background: var(--card-bg); border-radius: 12px; padding: 15px;
@@ -259,20 +299,34 @@ input:checked + .slider:before { transform: translateX(24px); }
   border-top: 5px solid var(--primary-color); color: var(--text-main);
 }
 
-.divination-full-results { margin-top: 20px; }
-.divination-full-results h3 { color: var(--primary-color); text-align: center; }
+.divination-full-results { margin-top: 30px; }
+.divination-full-results h3 { color: var(--primary-color); text-align: center; margin-bottom: 20px; }
+
 .result-card-unit {
-  background: var(--card-bg); padding: 15px; border-radius: 12px;
-  margin-bottom: 15px; border: 1px solid var(--border-color);
+  background: var(--card-bg); 
+  padding: 20px; 
+  border-radius: 12px;
+  margin-bottom: 20px; 
+  border: 1px solid var(--border-color);
   box-shadow: 0 2px 8px var(--shadow-color);
 }
 .result-card-unit h4 {
-  margin-top: 0; color: var(--primary-color); border-bottom: 1px solid var(--border-color);
-  padding-bottom: 8px;
+  margin-top: 0; 
+  color: var(--primary-color); 
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+/* 占卜結果文字樣式：強制保留格式 */
+.result-text {
+  white-space: pre-wrap; 
+  line-height: 1.8;
+  color: var(--text-main);
 }
 
 /* =========================================
-   6. 底部控制與 Footer (還原樣式)
+   6. 底部控制與 Footer
    ========================================= */
 .controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
 .btn {
@@ -285,14 +339,16 @@ input:checked + .slider:before { transform: translateX(24px); }
 
 .status {
   text-align: center; font-size: 0.9rem; color: var(--text-sub);
-  margin-top: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center;
+  margin-top: 20px; /* 增加間距 */
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
 }
 
 .toggle { display: inline-flex; align-items: center; cursor: pointer; gap: 8px; }
 
-/* Footer 還原 */
 .app-footer {
-  margin-top: 32px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
   text-align: center;
   font-size: 0.75rem;
   color: #999;
