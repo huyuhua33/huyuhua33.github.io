@@ -73,14 +73,15 @@ function switchMode(mode) {
   currentMode = mode;
 
   if (mode === "divination") {
-    // --- 切換到 占卜版 (Divination) ---
+    // --- 切換到 占卜版 ---
     simpleModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "block";
     mainStatusSection.style.display = "none"; 
     renderFullDeck(); 
   } else {
-    // --- 切換到 簡單版 (Simple) ---
-    simpleModeGroup.style.display = "flex"; // 使用 flex 以維持排版
+    // --- 切換到 簡單版 ---
+    // 修正：使用 flex 顯示，確保 CSS 中的 flex-direction 生效
+    simpleModeGroup.style.display = "flex"; 
     divinationModeDisplay.style.display = "none";
     mainStatusSection.style.display = "flex";
 
@@ -139,6 +140,14 @@ function renderFullDeck() {
   shuffledIndices.forEach((poolIndex) => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mini-card";
+    
+    // 修正：加入卡背圖片
+    const img = document.createElement("img");
+    img.src = `${IMAGE_BASE_PATH}/Back.png`; 
+    img.alt = "Card Back";
+    img.ondragstart = () => false; // 防止拖拉圖片
+    cardDiv.appendChild(img);
+
     // 點擊事件
     cardDiv.onclick = () => handleSelect(poolIndex, cardDiv);
     cardSpread.appendChild(cardDiv);
@@ -159,7 +168,7 @@ function handleSelect(poolIndex, element) {
   updateSelectionUI();
 }
 
-// === 占卜版：更新介面 ===
+// === 占卜版：更新介面 (結果顯示) ===
 function updateSelectionUI() {
   const count = selectedIndices.length;
   if(selectionCounter) {
@@ -183,22 +192,16 @@ function updateSelectionUI() {
       const cardDiv = document.createElement("div");
       cardDiv.className = "result-card-unit";
       
-      const imageUrl = card.image 
-        ? (card.image.startsWith("http") ? card.image : `${IMAGE_BASE_PATH}/${card.image}`) 
-        : null;
-      
-      const imgHtml = imageUrl 
-        ? `<div class="card-image-wrapper" style="display:block"><img src="${imageUrl}" style="width:100%; border-radius:8px;"></div>` 
-        : "";
-
+      // 修正：不顯示圖片，僅顯示標題與格式化後的內文
+      // 使用 pre-wrap 確保 JSON 內的 \n\n 和格式正確顯示
       cardDiv.innerHTML = `
         <h4>第 ${i + 1} 張：${card.name || "未命名"}</h4>
-        ${imgHtml}
-        <p>${card.description || ""}</p>
+        <p class="result-text">${card.description || ""}</p>
       `;
       container.appendChild(cardDiv);
     });
 
+    // 平滑捲動到結果區
     resultsArea.scrollIntoView({ behavior: 'smooth' });
   }
 }
