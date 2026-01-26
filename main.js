@@ -223,7 +223,7 @@ function onDrawCardTextOnly() {
 
 function renderTextOnlyCard(card) {
   // 隱言經的 JSON 結構: id, name(可能是數字), description
-  const title = card.name ? `Hidden Word No.${card.name}` : `No.${card.id}`;
+  const title = card.name ?;
   const description = card.description || "";
 
   textCardNameEl.textContent = title;
