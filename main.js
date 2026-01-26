@@ -3,7 +3,7 @@
 const DATA_SOURCES = {
   simple: "./cards_filled.json",
   divination: "./cards_filled.json",
-  "hidden-en": "./The Hidden Words.json",
+  "hidden-en": "./hidden_words.json",
   // 未來可加入: "hidden-zh": "./The Hidden Words Zh.json", 等
 };
 
