@@ -1,28 +1,28 @@
 // === 設定區 ===
 // 不同模式對應的資料來源
+// 請確保您的伺服器上有 hidden_words_en.json 這個檔案
 const DATA_SOURCES = {
   simple: "./cards_filled.json",
   divination: "./cards_filled.json",
-  "hidden-en": "./hidden_words_en.json",
-  // 未來可加入: "hidden-zh": "./The Hidden Words Zh.json", 等
+  hiddenen: "./hidden_words_en.json", 
+  // 未來可加入: "hiddenzh": "./hidden_words_zh.json"
 };
 
 const IMAGE_BASE_PATH = "./imgs"; 
 
 // === 狀態變數 ===
 let currentCardPool = []; // 當前使用的牌組資料
-let dataCache = {};       // 資料快取：避免重複下載 { simple: [...], "hidden-en": [...] }
+let dataCache = {};       // 資料快取：避免重複下載
 let isLoading = false;
-let currentMode = "simple"; // simple | divination | hidden-en
+let currentMode = "simple"; // simple | divination | hiddenen
 let selectedIndices = [];
 
 // === DOM 取得 ===
-// 共用區
 const drawButtonEl = document.getElementById("drawButton");
 const statusTextEl = document.getElementById("statusText");
 const toggleImageEl = document.getElementById("toggleImage");
 const mainStatusSection = document.getElementById("mainStatusSection");
-const imageToggleContainer = document.getElementById("imageToggleContainer"); // 圖片開關的容器
+const imageToggleContainer = document.getElementById("imageToggleContainer"); 
 
 // 主題與模式切換
 const themeToggleCheckbox = document.getElementById("themeToggleCheckbox");
@@ -43,7 +43,7 @@ const cardSpread = document.getElementById("cardSpread");
 const testCardDetail = document.getElementById("testCardDetail");
 const selectionCounter = document.getElementById("selectionCounter");
 
-// 3. 純文字版 (Text Only Mode - HiddenEn etc.) 元素
+// 3. 純文字版 (Text Only Mode - hiddenen) 元素
 const textOnlyModeGroup = document.getElementById("textOnlyModeGroup");
 const deckTextOnlyEl = document.getElementById("deckTextOnly");
 const textCardNameEl = document.getElementById("textCardName");
@@ -104,7 +104,7 @@ function switchMode(mode) {
     mainStatusSection.style.display = "none"; // 占卜版不需要下方狀態
     renderFullDeck(); // 初始化占卜牌陣
 
-  } else if (mode === "hidden-en") {
+  } else if (mode === "hiddenen") {
     // --- 隱言經 (英) ---
     simpleModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "none";
@@ -132,7 +132,7 @@ async function loadDataForMode(mode) {
   isLoading = true;
   setStatus("正在載入資料...");
 
-  // 決定要讀哪個 URL (占卜版跟簡單版共用資料)
+  // 決定要讀哪個 URL (若找不到則預設 simple)
   const targetUrl = DATA_SOURCES[mode] || DATA_SOURCES["simple"];
   
   // 檢查快取
@@ -145,7 +145,7 @@ async function loadDataForMode(mode) {
 
   try {
     const res = await fetch(targetUrl, { cache: "no-store" });
-    if (!res.ok) throw new Error("Fetch failed");
+    if (!res.ok) throw new Error("Fetch failed: " + targetUrl);
     const data = await res.json();
     
     // 存入快取並設為當前牌組
@@ -155,7 +155,7 @@ async function loadDataForMode(mode) {
     onDataLoaded(mode);
   } catch (e) {
     console.error(e);
-    setStatus("資料載入失敗，請檢查網路或檔案路徑。");
+    setStatus("資料載入失敗，請確認網頁目錄下是否有 " + targetUrl);
   } finally {
     isLoading = false;
   }
@@ -170,10 +170,9 @@ function onDataLoaded(mode) {
     setStatus(`已載入卡池：共 ${count} 張卡。`);
     setDrawEnabled(true);
   } else if (mode === "divination") {
-    // 占卜版在切換介面時已經呼叫 renderFullDeck，這裡不需要額外動作，除非是重新整理
     renderFullDeck(); 
-  } else {
-    // 隱言經等純文字版
+  } else if (mode === "hiddenen") {
+    // 隱言經載入成功
     setStatus(`已載入隱言經(英)：共 ${count} 條聖言。`);
     setDrawEnabled(true);
   }
@@ -213,7 +212,7 @@ function renderCardSimple(card) {
 }
 
 // ==========================================
-// 邏輯 B: 純文字版 (Text Only - HiddenEn)
+// 邏輯 B: 純文字版 (Text Only - hiddenen)
 // ==========================================
 function onDrawCardTextOnly() {
   if (isLoading || !currentCardPool.length) return;
@@ -222,8 +221,9 @@ function onDrawCardTextOnly() {
 }
 
 function renderTextOnlyCard(card) {
-  // 隱言經的 JSON 結構: id, name(可能是數字), description
-  const title = card.name ?;
+  // 修正：這裡之前有語法錯誤，現在修復了
+  // 如果 json 有 name 就顯示 name，沒有就顯示 id
+  const title = card.name ? `Hidden Word No.${card.name}` : `No.${card.id}`;
   const description = card.description || "";
 
   textCardNameEl.textContent = title;
