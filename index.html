@@ -27,7 +27,11 @@
 
           <input type="radio" name="mode" id="mode-divination" value="divination">
           <label for="mode-divination">占卜版</label>
-        </div>
+
+          <input type="radio" name="mode" id="mode-hidden-en" value="hidden-en">
+          <label for="mode-hidden-en">隱言經 (英)</label>
+
+          </div>
       </div>
     </header>
 
@@ -67,7 +71,7 @@
             </div>
             <h2 id="cardName" class="card-name">請先從卡組抽一張卡</h2>
             <p id="cardDescription" class="card-description">
-              點擊卡牌或按鈕抽卡。
+              點擊上方卡組或下方按鈕即可抽卡。
             </p>
           </div>
         </section>
@@ -78,10 +82,33 @@
           </button>
         </section>
       </div>
+
+      <div id="textOnlyModeGroup" style="display: none;">
+        <section class="deck-section">
+          <div id="deckTextOnly" class="deck-stack">
+            <img src="./imgs/Back.png" alt="卡牌背面" />
+          </div>
+        </section>
+
+        <section class="card-display">
+          <div class="card-inner">
+            <h2 id="textCardName" class="card-name">請抽一張經典卡</h2>
+            <p id="textCardDescription" class="card-description">
+              點擊上方卡組或下方按鈕即可獲得指引。
+            </p>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="drawButtonTextOnly" class="btn primary">
+            抽卡
+          </button>
+        </section>
+      </div>
       
       <section class="status" id="mainStatusSection">
         <p id="statusText">正在初始化...</p>
-        <label class="toggle">
+        <label class="toggle" id="imageToggleContainer">
           <input type="checkbox" id="toggleImage" checked />
           <span>顯示卡牌圖片（若有）</span>
         </label>
