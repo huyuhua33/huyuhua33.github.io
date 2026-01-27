@@ -223,7 +223,7 @@ function onDrawCardTextOnly() {
 function renderTextOnlyCard(card) {
   // 修正：這裡之前有語法錯誤，現在修復了
   // 如果 json 有 name 就顯示 name，沒有就顯示 id
-  const title = card.name ? `Hidden Word No.${card.name}` : `No.${card.id}`;
+  const title = card.name ? `Hidden Words No.${card.name}` : `No.${card.id}`;
   const description = card.description || "";
 
   textCardNameEl.textContent = title;
