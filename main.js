@@ -167,13 +167,13 @@ function onDataLoaded(mode) {
   
   if (mode === "simple") {
     renderCardList(currentCardPool); // 只有簡單版需要顯示清單
-    setStatus(`已載入卡池：共 ${count} 張卡。`);
+    setStatus(`已載入經典卡：共 ${count} 張卡。`);
     setDrawEnabled(true);
   } else if (mode === "divination") {
     renderFullDeck(); 
   } else if (mode === "hiddenen") {
     // 隱言經載入成功
-    setStatus(`已載入隱言經(英)：共 ${count} 條聖言。`);
+    setStatus(`已載入隱言經(英)：共 ${count} 條經典。`);
     setDrawEnabled(true);
   }
 }
