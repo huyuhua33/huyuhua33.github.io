@@ -1,20 +1,27 @@
 // === 設定區 ===
 // 不同模式對應的資料來源
-// 請確保您的伺服器上有 hidden_words_en.json 這個檔案
 const DATA_SOURCES = {
   simple: "./cards_filled.json",
   divination: "./cards_filled.json",
-  hiddenen: "./hidden_words_en.json", 
-  // 未來可加入: "hiddenzh": "./hidden_words_zh.json"
+  hiddenen: "./hidden_words_en.json",
+  hiddenzh: "./hidden_words_zh.json", // 新增中文版資料來源
 };
 
-const IMAGE_BASE_PATH = "./imgs"; 
+const IMAGE_BASE_PATH = "./imgs";
+
+// ✨ 定義不同模式與主題下的牌背圖片路徑
+// 請確保您已將裁切好的圖片命名為以下名稱並放入 imgs 資料夾
+const CARD_BACKS = {
+  default: `${IMAGE_BASE_PATH}/Back.png`,
+  hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.png`, // 隱言經亮色封面
+  hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`    // 隱言經深色封面
+};
 
 // === 狀態變數 ===
 let currentCardPool = []; // 當前使用的牌組資料
-let dataCache = {};       // 資料快取：避免重複下載
+let dataCache = {};       // 資料快取
 let isLoading = false;
-let currentMode = "simple"; // simple | divination | hiddenen
+let currentMode = "simple"; // simple | divination | hiddenen | hiddenzh
 let selectedIndices = [];
 
 // === DOM 取得 ===
@@ -22,7 +29,7 @@ const drawButtonEl = document.getElementById("drawButton");
 const statusTextEl = document.getElementById("statusText");
 const toggleImageEl = document.getElementById("toggleImage");
 const mainStatusSection = document.getElementById("mainStatusSection");
-const imageToggleContainer = document.getElementById("imageToggleContainer"); 
+const imageToggleContainer = document.getElementById("imageToggleContainer");
 
 // 主題與模式切換
 const themeToggleCheckbox = document.getElementById("themeToggleCheckbox");
@@ -43,8 +50,10 @@ const cardSpread = document.getElementById("cardSpread");
 const testCardDetail = document.getElementById("testCardDetail");
 const selectionCounter = document.getElementById("selectionCounter");
 
-// 3. 純文字版 (Text Only Mode - hiddenen) 元素
+// 3. 純文字版 (Text Only Mode - hiddenen/zh) 元素
 const textOnlyModeGroup = document.getElementById("textOnlyModeGroup");
+// ✨ 取得純文字模式的牌堆圖片元素，用於切換封面
+const deckTextOnlyImg = document.querySelector('#deckTextOnly img');
 const deckTextOnlyEl = document.getElementById("deckTextOnly");
 const textCardNameEl = document.getElementById("textCardName");
 const textCardDescriptionEl = document.getElementById("textCardDescription");
@@ -55,13 +64,15 @@ const drawButtonTextOnlyEl = document.getElementById("drawButtonTextOnly");
 document.addEventListener("DOMContentLoaded", () => {
   // 預設載入簡單版資料
   loadDataForMode("simple");
+  // 初始化牌背圖片
+  updateCardBackImage();
 
   // --- 綁定事件 ---
-  
+
   // 簡單版抽卡
   if(drawButtonEl) drawButtonEl.addEventListener("click", onDrawCardSimple);
   if(deckEl) deckEl.addEventListener("click", onDrawCardSimple);
-  
+
   // 純文字版抽卡
   if(drawButtonTextOnlyEl) drawButtonTextOnlyEl.addEventListener("click", onDrawCardTextOnly);
   if(deckTextOnlyEl) deckTextOnlyEl.addEventListener("click", onDrawCardTextOnly);
@@ -77,6 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         document.body.removeAttribute("data-theme");
       }
+      // ✨ 主題切換時，同步更新牌背圖片
+      updateCardBackImage();
     });
   }
 
@@ -90,6 +103,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// === ✨ 新增函式：根據模式與主題更新牌背圖片 ===
+function updateCardBackImage() {
+  if (!deckTextOnlyImg) return;
+
+  const isDarkTheme = document.body.getAttribute("data-theme") === "dark";
+  
+  // 判斷是否為隱言經系列模式
+  if (currentMode === 'hiddenen' || currentMode === 'hiddenzh') {
+    // 根據主題選擇對應的封面
+    deckTextOnlyImg.src = isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
+  } else {
+    // 其他模式 (如簡單版) 使用預設牌背
+    // (雖然簡單版用的是另一個 img 元素，但保持這個邏輯比較安全)
+    deckTextOnlyImg.src = CARD_BACKS.default;
+  }
+}
+
 // === 核心：模式切換邏輯 ===
 function switchMode(mode) {
   currentMode = mode;
@@ -100,16 +130,16 @@ function switchMode(mode) {
     simpleModeGroup.style.display = "none";
     textOnlyModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "block";
-    
-    mainStatusSection.style.display = "none"; // 占卜版不需要下方狀態
-    renderFullDeck(); // 初始化占卜牌陣
 
-  } else if (mode === "hiddenen") {
-    // --- 隱言經 (英) ---
+    mainStatusSection.style.display = "none";
+    renderFullDeck();
+
+  } else if (mode === "hiddenen" || mode === "hiddenzh") {
+    // --- 隱言經 (英/中) 共用純文字介面 ---
     simpleModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "none";
-    textOnlyModeGroup.style.display = "flex"; // 使用 flex
-    
+    textOnlyModeGroup.style.display = "flex";
+
     mainStatusSection.style.display = "flex";
     imageToggleContainer.style.display = "none"; // 純文字模式不需要圖片開關
 
@@ -117,14 +147,17 @@ function switchMode(mode) {
     // --- 簡單版 (預設) ---
     divinationModeDisplay.style.display = "none";
     textOnlyModeGroup.style.display = "none";
-    simpleModeGroup.style.display = "flex"; 
-    
+    simpleModeGroup.style.display = "flex";
+
     mainStatusSection.style.display = "flex";
-    imageToggleContainer.style.display = "inline-flex"; // 恢復圖片開關
+    imageToggleContainer.style.display = "inline-flex";
   }
 
   // 2. 切換資料來源
   loadDataForMode(mode);
+  
+  // ✨ 3. 切換模式時，同步更新牌背圖片
+  updateCardBackImage();
 }
 
 // === 資料載入與快取機制 ===
@@ -132,10 +165,8 @@ async function loadDataForMode(mode) {
   isLoading = true;
   setStatus("正在載入資料...");
 
-  // 決定要讀哪個 URL (若找不到則預設 simple)
   const targetUrl = DATA_SOURCES[mode] || DATA_SOURCES["simple"];
-  
-  // 檢查快取
+
   if (dataCache[targetUrl]) {
     currentCardPool = dataCache[targetUrl];
     onDataLoaded(mode);
@@ -147,11 +178,10 @@ async function loadDataForMode(mode) {
     const res = await fetch(targetUrl, { cache: "no-store" });
     if (!res.ok) throw new Error("Fetch failed: " + targetUrl);
     const data = await res.json();
-    
-    // 存入快取並設為當前牌組
+
     dataCache[targetUrl] = data;
     currentCardPool = data;
-    
+
     onDataLoaded(mode);
   } catch (e) {
     console.error(e);
@@ -164,16 +194,18 @@ async function loadDataForMode(mode) {
 // 資料載入完成後的處理
 function onDataLoaded(mode) {
   const count = currentCardPool.length;
-  
+
   if (mode === "simple") {
-    renderCardList(currentCardPool); // 只有簡單版需要顯示清單
-    setStatus(`已載入經典卡：共 ${count} 張卡。`);
+    renderCardList(currentCardPool);
+    setStatus(`已載入卡池：共 ${count} 張卡。`);
     setDrawEnabled(true);
   } else if (mode === "divination") {
-    renderFullDeck(); 
+    renderFullDeck();
   } else if (mode === "hiddenen") {
-    // 隱言經載入成功
-    setStatus(`已載入隱言經(英)：共 ${count} 條經典。`);
+    setStatus(`已載入隱言經(英)：共 ${count} 條聖言。`);
+    setDrawEnabled(true);
+  } else if (mode === "hiddenzh") {
+    setStatus(`已載入隱言經(中)：共 ${count} 條聖言。`);
     setDrawEnabled(true);
   }
 }
@@ -204,15 +236,14 @@ function renderCardSimple(card) {
     cardImageEl.removeAttribute("src");
   }
 
-  // 翻牌動畫
   const container = cardNameEl.parentElement;
   container.classList.remove("flip");
-  void container.offsetWidth; 
+  void container.offsetWidth;
   container.classList.add("flip");
 }
 
 // ==========================================
-// 邏輯 B: 純文字版 (Text Only - hiddenen)
+// 邏輯 B: 純文字版 (Text Only - hiddenen/zh)
 // ==========================================
 function onDrawCardTextOnly() {
   if (isLoading || !currentCardPool.length) return;
@@ -221,18 +252,27 @@ function onDrawCardTextOnly() {
 }
 
 function renderTextOnlyCard(card) {
-  // 修正：這裡之前有語法錯誤，現在修復了
-  // 如果 json 有 name 就顯示 name，沒有就顯示 id
-  const title = card.name ? `Hidden Words No.${card.name}` : `No.${card.id}`;
+  // 根據模式決定標題前綴
+  let prefix = "No.";
+  if (currentMode === "hiddenen") prefix = "Hidden Word No.";
+  if (currentMode === "hiddenzh") prefix = "隱言經 ";
+
+  // 如果 json 有 name 就用 name，沒有就用 id
+  let title = "";
+  if (card.name) {
+      title = `${prefix}${card.name}${(currentMode === "hiddenzh" ? " 條" : "")}`;
+  } else {
+      title = `${prefix}${card.id}${(currentMode === "hiddenzh" ? " 條" : "")}`;
+  }
+
   const description = card.description || "";
 
   textCardNameEl.textContent = title;
   textCardDescriptionEl.textContent = description;
 
-  // 翻牌動畫
   const container = textCardNameEl.parentElement;
   container.classList.remove("flip");
-  void container.offsetWidth; 
+  void container.offsetWidth;
   container.classList.add("flip");
 }
 
@@ -243,25 +283,23 @@ function renderFullDeck() {
   if(!cardSpread) return;
   cardSpread.innerHTML = "";
   selectedIndices = [];
-  
+
   document.getElementById("divinationFullResults").style.display = "none";
   testCardDetail.style.display = "block";
   testCardDetail.innerHTML = "<p>準備中...</p>";
-  
+
   updateSelectionUI();
 
-  // 這裡使用 currentCardPool，確保占卜用的是 cards_filled.json
-  // (因為 switchMode 已經處理了 loadDataForMode)
   const shuffledIndices = [...Array(currentCardPool.length).keys()].sort(() => Math.random() - 0.5);
 
   shuffledIndices.forEach((poolIndex) => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mini-card";
-    
+
     const img = document.createElement("img");
-    img.src = `${IMAGE_BASE_PATH}/Back.png`; 
+    img.src = CARD_BACKS.default; // 占卜版使用預設牌背
     img.alt = "Card Back";
-    img.ondragstart = () => false; 
+    img.ondragstart = () => false;
     cardDiv.appendChild(img);
 
     cardDiv.onclick = () => handleSelect(poolIndex, cardDiv);
@@ -296,13 +334,13 @@ function updateSelectionUI() {
   } else {
     testCardDetail.style.display = "none";
     resultsArea.style.display = "block";
-    container.innerHTML = ""; 
+    container.innerHTML = "";
 
     selectedIndices.forEach((cardIdx, i) => {
       const card = currentCardPool[cardIdx];
       const cardDiv = document.createElement("div");
       cardDiv.className = "result-card-unit";
-      
+
       cardDiv.innerHTML = `
         <h4>第 ${i + 1} 張：${card.name || "未命名"}</h4>
         <p class="result-text">${card.description || ""}</p>
@@ -340,7 +378,7 @@ function renderCardList(pool) {
     btn.type = "button";
     btn.textContent = card.name ? card.name : `未命名卡牌 #${idx + 1}`;
     btn.addEventListener("click", () => {
-      renderCardSimple(card);              
+      renderCardSimple(card);
       if (cardListPanelEl) cardListPanelEl.open = false;
     });
     cardListEl.appendChild(btn);
