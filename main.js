@@ -1,16 +1,17 @@
+// main.js
+
 // === 設定區 ===
 // 不同模式對應的資料來源
 const DATA_SOURCES = {
   simple: "./cards_filled.json",
   divination: "./cards_filled.json",
   hiddenen: "./hidden_words_en.json",
-  hiddenzh: "./hidden_words_zh.json", // 新增中文版資料來源
+  hiddenzh: "./hidden_words_zh.json",
 };
 
 const IMAGE_BASE_PATH = "./imgs";
 
 // ✨ 定義不同模式與主題下的牌背圖片路徑
-// 請確保您已將裁切好的圖片命名為以下名稱並放入 imgs 資料夾
 const CARD_BACKS = {
   default: `${IMAGE_BASE_PATH}/Back.png`,
   hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.png`, // 隱言經亮色封面
@@ -52,7 +53,6 @@ const selectionCounter = document.getElementById("selectionCounter");
 
 // 3. 純文字版 (Text Only Mode - hiddenen/zh) 元素
 const textOnlyModeGroup = document.getElementById("textOnlyModeGroup");
-// ✨ 取得純文字模式的牌堆圖片元素，用於切換封面
 const deckTextOnlyImg = document.querySelector('#deckTextOnly img');
 const deckTextOnlyEl = document.getElementById("deckTextOnly");
 const textCardNameEl = document.getElementById("textCardName");
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// === ✨ 新增函式：根據模式與主題更新牌背圖片 ===
+// === ✨ 根據模式與主題更新牌背圖片 ===
 function updateCardBackImage() {
   if (!deckTextOnlyImg) return;
 
@@ -115,7 +115,6 @@ function updateCardBackImage() {
     deckTextOnlyImg.src = isDarkTheme ? CARD_BACKS.hwDark : CARD_BACKS.hwLight;
   } else {
     // 其他模式 (如簡單版) 使用預設牌背
-    // (雖然簡單版用的是另一個 img 元素，但保持這個邏輯比較安全)
     deckTextOnlyImg.src = CARD_BACKS.default;
   }
 }
@@ -124,6 +123,9 @@ function updateCardBackImage() {
 function switchMode(mode) {
   currentMode = mode;
   selectedIndices = []; // 重置占卜選擇
+
+  // ✨✨✨ 新增：切換模式時，先重置所有顯示內容，避免殘留上一張卡的內容 ✨✨✨
+  resetDisplays();
 
   // 1. 介面顯示/隱藏
   if (mode === "divination") {
@@ -156,8 +158,29 @@ function switchMode(mode) {
   // 2. 切換資料來源
   loadDataForMode(mode);
   
-  // ✨ 3. 切換模式時，同步更新牌背圖片
+  // 3. 切換模式時，同步更新牌背圖片
   updateCardBackImage();
+}
+
+// === ✨✨✨ 新增：重置畫面顯示函式 ✨✨✨
+function resetDisplays() {
+  // 1. 重置簡單版 (有圖片的)
+  if (cardNameEl) cardNameEl.textContent = "請抽經典卡";
+  if (cardDescriptionEl) cardDescriptionEl.textContent = "點擊上方卡組或下方按鈕抽卡。";
+  if (cardImageWrapperEl) cardImageWrapperEl.style.display = "none";
+  if (cardImageEl) cardImageEl.removeAttribute("src");
+
+  // 2. 重置純文字版 (隱言經)
+  if (textCardNameEl) textCardNameEl.textContent = "請抽隱言經";
+  if (textCardDescriptionEl) textCardDescriptionEl.textContent = "點擊上方卡組或下方按鈕抽卡。";
+
+  // 3. 移除翻轉動畫 class (確保下次抽卡時動畫能重新觸發)
+  if (cardNameEl && cardNameEl.parentElement) {
+    cardNameEl.parentElement.classList.remove("flip");
+  }
+  if (textCardNameEl && textCardNameEl.parentElement) {
+    textCardNameEl.parentElement.classList.remove("flip");
+  }
 }
 
 // === 資料載入與快取機制 ===
@@ -236,9 +259,10 @@ function renderCardSimple(card) {
     cardImageEl.removeAttribute("src");
   }
 
+  // 重置動畫
   const container = cardNameEl.parentElement;
   container.classList.remove("flip");
-  void container.offsetWidth;
+  void container.offsetWidth; // 觸發 reflow
   container.classList.add("flip");
 }
 
@@ -270,9 +294,10 @@ function renderTextOnlyCard(card) {
   textCardNameEl.textContent = title;
   textCardDescriptionEl.textContent = description;
 
+  // 重置動畫
   const container = textCardNameEl.parentElement;
   container.classList.remove("flip");
-  void container.offsetWidth;
+  void container.offsetWidth; // 觸發 reflow
   container.classList.add("flip");
 }
 
