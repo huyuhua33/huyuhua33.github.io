@@ -254,7 +254,7 @@ function onDrawCardTextOnly() {
 function renderTextOnlyCard(card) {
   // 根據模式決定標題前綴
   let prefix = "No.";
-  if (currentMode === "hiddenen") prefix = "Hidden Word No.";
+  if (currentMode === "hiddenen") prefix = "Hidden Words No. ";
   if (currentMode === "hiddenzh") prefix = "隱言經 第 ";
 
   // 如果 json 有 name 就用 name，沒有就用 id
