@@ -13,8 +13,8 @@ const IMAGE_BASE_PATH = "./imgs";
 // 請確保您已將裁切好的圖片命名為以下名稱並放入 imgs 資料夾
 const CARD_BACKS = {
   default: `${IMAGE_BASE_PATH}/Back.png`,
-  hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.png`, // 隱言經亮色封面
-  hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.png`    // 隱言經深色封面
+  hwLight: `${IMAGE_BASE_PATH}/HW_Cover_Light.jpg`, // 隱言經亮色封面
+  hwDark: `${IMAGE_BASE_PATH}/HW_Cover_Dark.jpg`    // 隱言經深色封面
 };
 
 // === 狀態變數 ===
@@ -255,7 +255,7 @@ function renderTextOnlyCard(card) {
   // 根據模式決定標題前綴
   let prefix = "No.";
   if (currentMode === "hiddenen") prefix = "Hidden Word No.";
-  if (currentMode === "hiddenzh") prefix = "隱言經 ";
+  if (currentMode === "hiddenzh") prefix = "隱言經 第";
 
   // 如果 json 有 name 就用 name，沒有就用 id
   let title = "";
