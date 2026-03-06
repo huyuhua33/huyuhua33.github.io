@@ -9,7 +9,7 @@
 <body>
   <div class="app">
     <header class="app-header">
-      <h1>經典卡抽卡</h1>
+      <h1 data-i18n="ui_title">經典卡抽卡</h1>
 
       <div class="theme-switch-container">
         <span class="mode-label">淺色</span>
@@ -20,19 +20,35 @@
         <span class="mode-label">深色</span>
       </div>
       
-      <div class="segmented-control-wrapper">
+      <div class="tiers-container">
+        <div class="segmented-control">
+          <input type="radio" name="lang" id="lang-zh" value="zh" checked>
+          <label for="lang-zh">繁中</label>
+
+          <input type="radio" name="lang" id="lang-jp" value="jp">
+          <label for="lang-jp">日本語</label>
+
+          <input type="radio" name="lang" id="lang-en" value="en">
+          <label for="lang-en">English</label>
+
+          <input type="radio" name="lang" id="lang-ko" value="ko" disabled>
+          <label for="lang-ko">한국어</label>
+        </div>
+
+        <div class="segmented-control">
+          <input type="radio" name="source" id="source-classic" value="classic" checked>
+          <label for="source-classic" data-i18n="ui_source_classic">經典卡</label>
+
+          <input type="radio" name="source" id="source-hidden" value="hidden">
+          <label for="source-hidden" data-i18n="ui_source_hidden">隱言經</label>
+        </div>
+
         <div class="segmented-control">
           <input type="radio" name="mode" id="mode-simple" value="simple" checked>
-          <label for="mode-simple">簡單版</label>
+          <label for="mode-simple" data-i18n="ui_mode_simple">簡單模式</label>
 
           <input type="radio" name="mode" id="mode-divination" value="divination">
-          <label for="mode-divination">占卜版</label>
-
-          <input type="radio" name="mode" id="mode-hiddenzh" value="hiddenzh">
-          <label for="mode-hiddenzh">隱言經 (中)</label>
-          
-          <input type="radio" name="mode" id="mode-hiddenen" value="hiddenen">
-          <label for="mode-hiddenen">隱言經 (英)</label>
+          <label for="mode-divination" data-i18n="ui_mode_divination">占卜模式</label>
         </div>
       </div>
     </header>
@@ -42,10 +58,6 @@
       <section id="divinationModeDisplay" style="display: none;">
         <div class="selection-counter" id="selectionCounter">請憑直覺挑選 6 張卡片</div>
         <div id="cardSpread" class="full-deck-grid"></div>
-        
-        <div id="testCardDetail" class="test-card-detail">
-          <p>準備中...</p>
-        </div>
 
         <div id="divinationFullResults" class="divination-full-results" style="display: none;">
           <h3>✦ 您的占卜結果 ✦</h3>
@@ -62,7 +74,7 @@
         </section>
 
         <details class="cardlist" id="cardListPanel">
-          <summary>卡牌清單</summary>
+          <summary data-i18n="ui_cardlist_summary">卡牌清單</summary>
           <div id="cardList" class="cardlist-body"></div>
         </details>
 
@@ -79,9 +91,7 @@
         </section>
 
         <section class="controls">
-          <button id="drawButton" class="btn primary" disabled>
-            抽卡
-          </button>
+          <button id="drawButton" class="btn primary" data-i18n="ui_draw_btn">抽卡</button>
         </section>
       </div>
 
@@ -102,9 +112,7 @@
         </section>
 
         <section class="controls">
-          <button id="drawButtonTextOnly" class="btn primary">
-            抽卡
-          </button>
+          <button id="drawButtonTextOnly" class="btn primary" data-i18n="ui_draw_btn">抽卡</button>
         </section>
       </div>
       
