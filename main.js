@@ -403,33 +403,39 @@ function updateCardBackImage() {
 
 // === 占卜邏輯 ===
 function renderFullDeck() {
-  if(!cardSpread) return;
+  if (!cardSpread) return;
+
   cardSpread.innerHTML = "";
   selectedIndices = [];
-  // 隱藏結果區塊
-  document.getElementById("divinationFullResults").style.display = "none";
-  // 移除或隱藏「準備中」文字區塊
+
+  // 隱藏結果區
+  const results = document.getElementById("divinationFullResults");
+  if (results) results.style.display = "none";
+
+  // 隱藏測試區（如果存在）
   const testCardDetail = document.getElementById("testCardDetail");
   if (testCardDetail) testCardDetail.style.display = "none";
 
   updateSelectionUI();
 
-  // 取得正確的卡背
   const currentBackImg = getCurrentBackImage();
 
-  const shuffledIndices = [...Array(currentCardPool.length).keys()].sort(() => Math.random() - 0.5);
+  const shuffledIndices = [...Array(currentCardPool.length).keys()]
+    .sort(() => Math.random() - 0.5);
 
   shuffledIndices.forEach((poolIndex) => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mini-card";
 
     const img = document.createElement("img");
-    img.src = currentBackImg; 
+    img.src = currentBackImg;
     img.alt = "Card Back";
     img.ondragstart = () => false;
+
     cardDiv.appendChild(img);
 
     cardDiv.onclick = () => handleSelect(poolIndex, cardDiv);
+
     cardSpread.appendChild(cardDiv);
   });
 }
