@@ -70,7 +70,7 @@ body {
   padding-bottom: 5px;
   -webkit-overflow-scrolling: touch;
   display: flex;
-  justify-content: center;
+  justify-content: safe center;
 }
 
 .segmented-control {
@@ -159,7 +159,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 /* 純文字版容器 (hiddenen) - 樣式與簡單版保持一致 */
-#textOnlyModeGroup {
+#textOnlyModeGroup, #questionModeGroup {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -167,7 +167,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 /* 顯示與隱藏控制 */
-#divinationModeDisplay, #simpleModeGroup, #textOnlyModeGroup {
+#divinationModeDisplay, #simpleModeGroup, #textOnlyModeGroup, #questionModeGroup {
   width: 100%;
 }
 
@@ -184,6 +184,10 @@ input:checked + .slider:before { transform: translateX(24px); }
   width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 12px;
 }
 .deck-stack:active { transform: translateY(2px) scale(0.98); }
+.deck-stack:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 4px;
+}
 
 /* --- 卡牌清單樣式 --- */
 .cardlist {
@@ -351,7 +355,168 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 /* =========================================
-   6. 底部控制與 Footer
+   6. 反思提問與搜尋
+   ========================================= */
+.question-category {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.question-category[hidden] { display: none; }
+
+.question-text {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.32rem;
+  font-weight: 650;
+  line-height: 1.75;
+  text-align: center;
+}
+
+.question-note {
+  margin: 20px 0 0;
+  color: var(--text-sub);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.question-resource {
+  margin: 18px 0 0;
+  color: var(--primary-color);
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+.question-resource[hidden] { display: none; }
+
+.question-search {
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.question-search h2 {
+  margin: 0 0 6px;
+  color: var(--text-main);
+  font-size: 1.08rem;
+}
+
+.search-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-sub);
+  font-size: 0.86rem;
+}
+
+.search-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  outline: none;
+  background: var(--bg-color);
+  color: var(--text-main);
+  font: inherit;
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.search-input::placeholder { color: var(--text-sub); }
+.search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.search-status {
+  min-height: 1.3em;
+  margin: 10px 0 0;
+  color: var(--text-sub);
+  font-size: 0.82rem;
+}
+
+.question-results {
+  display: flex;
+  max-height: 360px;
+  margin-top: 8px;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.question-result-item {
+  display: flex;
+  width: 100%;
+  padding: 11px 12px;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-color);
+  color: var(--text-main);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: border-color var(--transition-speed), transform 0.15s ease;
+}
+
+.question-result-item:hover { border-color: var(--primary-color); }
+.question-result-item:active { transform: scale(0.99); }
+.question-result-item:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  outline-offset: 1px;
+}
+
+.question-result-category {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.question-result-text {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.question-result-content {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.question-result-resource {
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.question-search-empty {
+  margin: 4px 0 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--bg-color);
+  color: var(--text-sub);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+/* =========================================
+   7. 底部控制與 Footer
    ========================================= */
 .controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
 .btn {

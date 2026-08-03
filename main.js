@@ -18,6 +18,7 @@ const UI_TEXTS = {
     ui_source_hidden: "隱言經",
     ui_mode_simple: "簡單模式",
     ui_mode_divination: "占卜模式",
+    ui_mode_questions: "反思提問",
     ui_draw_btn: "抽卡",
     ui_cardlist_summary: "卡牌清單",
     ui_divination_hint: "請憑直覺挑選 6 張卡片",
@@ -32,6 +33,7 @@ const UI_TEXTS = {
     ui_source_hidden: "隠言経",
     ui_mode_simple: "シンプル",
     ui_mode_divination: "占いモード",
+    ui_mode_questions: "振り返りの質問",
     ui_draw_btn: "カードを引く",
     ui_cardlist_summary: "カードリスト",
     ui_divination_hint: "直感で6枚のカードを選んでください",
@@ -46,6 +48,7 @@ const UI_TEXTS = {
     ui_source_hidden: "Hidden Words",
     ui_mode_simple: "Simple",
     ui_mode_divination: "Divination",
+    ui_mode_questions: "Reflection",
     ui_draw_btn: "Draw Card",
     ui_cardlist_summary: "Card List",
     ui_divination_hint: "Follow your intuition and pick 6 cards",
@@ -60,6 +63,7 @@ const UI_TEXTS = {
     ui_source_hidden: "숨겨진 말씀",
     ui_mode_simple: "일반 모드",
     ui_mode_divination: "점술 모드",
+    ui_mode_questions: "성찰 질문",
     ui_draw_btn: "카드 뽑기",
     ui_cardlist_summary: "카드 목록",
     ui_divination_hint: "직감에 따라 6장의 카드를 선택하세요",
@@ -74,13 +78,15 @@ const UI_TEXTS = {
 let appState = {
   lang: "zh",      // zh | jp | en | kr
   source: "classic",// classic | hidden
-  mode: "simple"    // simple | divination
+  mode: "simple"    // simple | divination | questions
 };
 
 let currentCardPool = []; 
 let dataCache = {};       
 let isLoading = false;
 let selectedIndices = [];
+let lastQuestionId = null;
+let dataRequestId = 0;
 
 // === DOM 取得 ===
 const drawButtonEl = document.getElementById("drawButton");
@@ -112,8 +118,20 @@ const drawButtonTextOnlyEl = document.getElementById("drawButtonTextOnly");
 
 // 占卜版元素
 const cardSpread = document.getElementById("cardSpread");
-const testCardDetail = document.getElementById("testCardDetail");
 const selectionCounter = document.getElementById("selectionCounter");
+
+// 反思提問模式元素
+const questionModeGroup = document.getElementById("questionModeGroup");
+const deckQuestionEl = document.getElementById("deckQuestion");
+const questionCardDisplayEl = document.getElementById("questionCardDisplay");
+const questionCardInnerEl = document.getElementById("questionCardInner");
+const questionCategoryEl = document.getElementById("questionCategory");
+const questionTextEl = document.getElementById("questionText");
+const questionResourceEl = document.getElementById("questionResource");
+const drawQuestionButtonEl = document.getElementById("drawQuestionButton");
+const questionSearchInputEl = document.getElementById("questionSearchInput");
+const questionSearchStatusEl = document.getElementById("questionSearchStatus");
+const questionSearchResultsEl = document.getElementById("questionSearchResults");
 
 // === 初始化 ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -129,6 +147,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if(drawButtonTextOnlyEl) drawButtonTextOnlyEl.addEventListener("click", onDrawCard);
   document.getElementById("deck")?.addEventListener("click", onDrawCard);
   document.getElementById("deckTextOnly")?.addEventListener("click", onDrawCard);
+
+  // 反思提問抽取與搜尋
+  if(drawQuestionButtonEl) drawQuestionButtonEl.addEventListener("click", onDrawQuestion);
+  if(deckQuestionEl) {
+    deckQuestionEl.addEventListener("click", onDrawQuestion);
+    deckQuestionEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        onDrawQuestion();
+      }
+    });
+  }
+  if(questionSearchInputEl) questionSearchInputEl.addEventListener("input", renderQuestionSearchResults);
 
   if(toggleImageEl) toggleImageEl.addEventListener("change", updateImageVisibility);
   if(themeToggleCheckbox) {
@@ -201,10 +232,15 @@ function updateLayout() {
   simpleModeGroup.style.display = "none";
   textOnlyModeGroup.style.display = "none";
   divinationModeDisplay.style.display = "none";
+  questionModeGroup.style.display = "none";
 
   if (mode === "divination") {
     divinationModeDisplay.style.display = "block";
     mainStatusSection.style.display = "none";
+  } else if (mode === "questions") {
+    questionModeGroup.style.display = "flex";
+    mainStatusSection.style.display = "flex";
+    imageToggleContainer.style.display = "none";
   } else {
     mainStatusSection.style.display = "flex";
     
@@ -221,6 +257,8 @@ function updateLayout() {
 }
 
 function getTargetJsonPath() {
+  if (appState.mode === 'questions') return './questions.json';
+
   const { lang, source } = appState;
   if (source === 'classic') {
     if (lang === 'zh') return './cards_filled.json';
@@ -235,13 +273,16 @@ function getTargetJsonPath() {
 }
 
 async function loadData() {
+  const requestId = ++dataRequestId;
   isLoading = true;
   setStatus("正在載入資料...");
   setDrawEnabled(false);
+  if (questionSearchInputEl) questionSearchInputEl.disabled = true;
 
   const targetUrl = getTargetJsonPath();
 
   if (dataCache[targetUrl]) {
+    if (requestId !== dataRequestId) return;
     currentCardPool = dataCache[targetUrl];
     onDataLoaded();
     isLoading = false;
@@ -253,25 +294,35 @@ async function loadData() {
     if (!res.ok) throw new Error("Fetch failed");
     const data = await res.json();
     dataCache[targetUrl] = data;
+    if (requestId !== dataRequestId) return;
     currentCardPool = data;
     onDataLoaded();
   } catch (e) {
     console.error(e);
-    setStatus("資料載入失敗，無法取得：" + targetUrl);
+    if (requestId === dataRequestId) {
+      setStatus("資料載入失敗，無法取得：" + targetUrl);
+    }
   } finally {
-    isLoading = false;
+    if (requestId === dataRequestId) isLoading = false;
   }
 }
 
 function onDataLoaded() {
-  setStatus(`已載入牌庫：共 ${currentCardPool.length} 張。`);
+  const count = currentCardPool.length;
   setDrawEnabled(true);
-  
+
+  if (appState.mode === "questions") {
+    setStatus(`已載入反思提問：共 ${count} 個問題。`);
+    if (questionSearchInputEl) questionSearchInputEl.disabled = false;
+    renderQuestionSearchResults();
+  } else {
+    setStatus(`已載入牌庫：共 ${count} 張。`);
+    renderCardList();
+  }
+
   if (appState.mode === "divination") {
     renderFullDeck();
   }
-  
-  renderCardList();
 }
 
 function renderCardList() {
@@ -383,6 +434,111 @@ function updateCardBackImage() {
   });
 }
 
+// ==========================================
+// 邏輯 C: 反思提問 (Draw + Search)
+// ==========================================
+function onDrawQuestion() {
+  if (isLoading || !currentCardPool.length || appState.mode !== "questions") return;
+
+  const availableQuestions = currentCardPool.length > 1
+    ? currentCardPool.filter(question => question.id !== lastQuestionId)
+    : currentCardPool;
+  const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+  renderQuestionCard(availableQuestions[randomIndex]);
+}
+
+function renderQuestionCard(question) {
+  if (!question) return;
+
+  lastQuestionId = question.id;
+  questionCategoryEl.textContent = question.category || "反思提問";
+  questionCategoryEl.hidden = false;
+  questionTextEl.textContent = question.question || "這個問題正在整理中。";
+  if (question.resource) {
+    questionResourceEl.textContent = `資料來源：${question.resource}`;
+    questionResourceEl.hidden = false;
+  } else {
+    questionResourceEl.textContent = "";
+    questionResourceEl.hidden = true;
+  }
+
+  questionCardInnerEl.classList.remove("flip");
+  void questionCardInnerEl.offsetWidth;
+  questionCardInnerEl.classList.add("flip");
+}
+
+function renderQuestionSearchResults() {
+  if (!questionSearchInputEl || !questionSearchResultsEl || appState.mode !== "questions") return;
+
+  const query = questionSearchInputEl.value.trim().toLocaleLowerCase("zh-Hant");
+  questionSearchResultsEl.innerHTML = "";
+
+  if (!query) {
+    questionSearchStatusEl.textContent = `可搜尋 ${currentCardPool.length} 個問題。`;
+    return;
+  }
+
+  const terms = query.split(/\s+/).filter(Boolean);
+  const matches = currentCardPool.filter(question => {
+    const searchableText = [
+      question.category,
+      question.question,
+      question.resource,
+      ...(question.keywords || [])
+    ].filter(Boolean).join(" ").toLocaleLowerCase("zh-Hant");
+
+    return terms.every(term => searchableText.includes(term));
+  });
+
+  const visibleMatches = matches.slice(0, 12);
+  questionSearchStatusEl.textContent = matches.length > 12
+    ? `找到 ${matches.length} 個問題，顯示前 12 個。`
+    : `找到 ${matches.length} 個問題。`;
+
+  if (!matches.length) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "question-search-empty";
+    emptyMessage.textContent = "沒有符合的問題，試試其他關鍵字。";
+    questionSearchResultsEl.appendChild(emptyMessage);
+    return;
+  }
+
+  visibleMatches.forEach(question => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "question-result-item";
+
+    const category = document.createElement("span");
+    category.className = "question-result-category";
+    category.textContent = question.category || "反思提問";
+
+    const text = document.createElement("span");
+    text.className = "question-result-text";
+    text.textContent = question.question;
+
+    const content = document.createElement("span");
+    content.className = "question-result-content";
+    content.appendChild(text);
+
+    if (question.resource) {
+      const resource = document.createElement("span");
+      resource.className = "question-result-resource";
+      resource.textContent = question.resource;
+      content.appendChild(resource);
+    }
+
+    button.append(category, content);
+    button.addEventListener("click", () => {
+      renderQuestionCard(question);
+      questionCardDisplayEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    questionSearchResultsEl.appendChild(button);
+  });
+}
+
+// ==========================================
+// 邏輯 D: 占卜版 (Divination)
+// ==========================================
 function renderFullDeck() {
   if (!cardSpread) return;
 
@@ -391,9 +547,6 @@ function renderFullDeck() {
 
   const results = document.getElementById("divinationFullResults");
   if (results) results.style.display = "none";
-
-  const testCardDetail = document.getElementById("testCardDetail");
-  if (testCardDetail) testCardDetail.style.display = "none";
 
   updateSelectionUI();
 
@@ -485,6 +638,23 @@ function resetDisplays() {
 
   if (textCardNameEl) textCardNameEl.textContent = "";
   if (textCardDescriptionEl) textCardDescriptionEl.textContent = "";
+
+  lastQuestionId = null;
+  if (questionCategoryEl) {
+    questionCategoryEl.textContent = "";
+    questionCategoryEl.hidden = true;
+  }
+  if (questionTextEl) {
+    questionTextEl.textContent = "點擊上方卡組或下方按鈕，抽一個此刻值得思考的問題。";
+  }
+  if (questionResourceEl) {
+    questionResourceEl.textContent = "";
+    questionResourceEl.hidden = true;
+  }
+  if (questionSearchInputEl) questionSearchInputEl.value = "";
+  if (questionSearchStatusEl) questionSearchStatusEl.textContent = "";
+  if (questionSearchResultsEl) questionSearchResultsEl.innerHTML = "";
+  if (questionCardInnerEl) questionCardInnerEl.classList.remove("flip");
 }
 
 function triggerAnimation(element) {
@@ -501,6 +671,7 @@ function setStatus(message) {
 function setDrawEnabled(enabled) {
   if(drawButtonEl) drawButtonEl.disabled = !enabled;
   if(drawButtonTextOnlyEl) drawButtonTextOnlyEl.disabled = !enabled;
+  if(drawQuestionButtonEl) drawQuestionButtonEl.disabled = !enabled;
 }
 
 function updateImageVisibility() {
