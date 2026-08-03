@@ -24,12 +24,12 @@
       <h1 data-i18n="ui_title">經典卡抽卡</h1>
 
       <div class="theme-switch-container">
-        <span class="mode-label">淺色</span>
+        <span class="mode-label" data-i18n="ui_theme_light">淺色</span>
         <label class="switch">
           <input type="checkbox" id="themeToggleCheckbox">
           <span class="slider round"></span>
         </label>
-        <span class="mode-label">深色</span>
+        <span class="mode-label" data-i18n="ui_theme_dark">深色</span>
       </div>
       
       <div class="tiers-container">
@@ -53,17 +53,17 @@
 
           <input type="radio" name="source" id="source-hidden" value="hidden">
           <label for="source-hidden" data-i18n="ui_source_hidden">隱言經</label>
+
+          <input type="radio" name="source" id="source-questions" value="questions">
+          <label for="source-questions" data-i18n="ui_source_questions">反思提問</label>
         </div>
 
-        <div class="segmented-control">
+        <div class="segmented-control" id="modeControl">
           <input type="radio" name="mode" id="mode-simple" value="simple" checked>
           <label for="mode-simple" data-i18n="ui_mode_simple">簡單模式</label>
 
           <input type="radio" name="mode" id="mode-divination" value="divination">
           <label for="mode-divination" data-i18n="ui_mode_divination">占卜模式</label>
-
-          <input type="radio" name="mode" id="mode-questions" value="questions">
-          <label for="mode-questions" data-i18n="ui_mode_questions">反思提問</label>
         </div>
       </div>
     </header>
@@ -129,38 +129,39 @@
 
       <div id="questionModeGroup" style="display: none;">
         <section class="deck-section">
-          <div id="deckQuestion" class="deck-stack" role="button" tabindex="0" aria-label="抽一個反思問題">
-            <img src="./imgs/zh_cards_Back.png" alt="反思提問卡背面" />
+          <div id="deckQuestion" class="deck-stack" role="button" tabindex="0" aria-label="抽一個反思問題" data-i18n-aria-label="question_deck_aria">
+            <img src="./imgs/zh_cards_Back.png" alt="反思提問卡背面" data-i18n-alt="question_deck_alt" />
           </div>
         </section>
 
         <section class="card-display" id="questionCardDisplay">
           <div class="card-inner" id="questionCardInner" aria-live="polite" aria-atomic="true">
             <span id="questionCategory" class="question-category" hidden></span>
-            <h2 class="card-name">給自己一點思考的空間</h2>
-            <p id="questionText" class="question-text">
+            <h2 class="card-name" data-i18n="question_card_title">給自己一點思考的空間</h2>
+            <p id="questionText" class="question-text" data-i18n="question_prompt">
               點擊上方卡組或下方按鈕，抽一個此刻值得思考的問題。
             </p>
             <p id="questionResource" class="question-resource" hidden></p>
-            <p class="question-note">不急著找到答案，先留意心裡浮現了什麼。</p>
+            <p class="question-note" data-i18n="question_note">不急著找到答案，先留意心裡浮現了什麼。</p>
           </div>
         </section>
 
         <section class="controls">
-          <button id="drawQuestionButton" class="btn primary" disabled>
+          <button id="drawQuestionButton" class="btn primary" data-i18n="question_draw_btn" disabled>
             抽問題
           </button>
         </section>
 
         <section class="question-search" aria-labelledby="questionSearchTitle">
-          <h2 id="questionSearchTitle">搜尋問題</h2>
-          <label class="search-label" for="questionSearchInput">依主題、來源或關鍵字尋找</label>
+          <h2 id="questionSearchTitle" data-i18n="question_search_title">搜尋問題</h2>
+          <label class="search-label" for="questionSearchInput" data-i18n="question_search_label">依主題、來源或關鍵字尋找</label>
           <input
             id="questionSearchInput"
             class="search-input"
             type="search"
             inputmode="search"
             placeholder="例如：服務、社區、B13"
+            data-i18n-placeholder="question_search_placeholder"
             autocomplete="off"
             disabled
           />
@@ -173,7 +174,7 @@
         <p id="statusText">正在初始化...</p>
         <label class="toggle" id="imageToggleContainer">
           <input type="checkbox" id="toggleImage" checked />
-          <span>顯示卡牌圖片（若有）</span>
+          <span data-i18n="ui_image_toggle">顯示卡牌圖片（若有）</span>
         </label>
       </section>
       

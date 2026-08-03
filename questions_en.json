@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "category": "Self-awareness",
+    "question": "What does my heart truly need at this moment?",
+    "keywords": ["inner self", "needs", "present moment", "feelings"]
+  },
+  {
+    "id": 2,
+    "category": "Self-awareness",
+    "question": "What thought has kept returning lately, and what might it be trying to tell me?",
+    "keywords": ["thought", "reminder", "observation", "reflection"]
+  },
+  {
+    "id": 3,
+    "category": "Worship and Service",
+    "question": "Can you give examples of service that is not carried out in a spirit of worship of God? What results can such service achieve?",
+    "keywords": ["service", "worship of God", "spirit", "results", "examples"],
+    "resource": "Book 13, Unit 1, Lesson 2"
+  },
+  {
+    "id": 4,
+    "category": "Worship and Service",
+    "question": "How would you view a community that focuses only on the worship of God without giving sufficient attention to service to humanity?",
+    "keywords": ["community", "worship of God", "service to humanity", "balance", "service"],
+    "resource": "Book 13, Unit 1, Lesson 2"
+  }
+]

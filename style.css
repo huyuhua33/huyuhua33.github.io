@@ -557,12 +557,16 @@ input:checked + .slider:before { transform: translateX(24px); }
 .segmented-control {
   display: inline-flex; /* 關鍵：寬度由內容決定 */
   width: fit-content;   /* 關鍵：寬度由內容決定 */
+  max-width: 100%;
+  overflow-x: auto;
   background-color: rgba(0,0,0,0.05);
   padding: 4px;
   border-radius: 10px;
   user-select: none;
   border: 1px solid var(--border-color);
 }
+
+#modeControl[hidden] { display: none; }
 
 .segmented-control label {
   padding: 6px 16px;    /* 增加左右內距讓文字呼吸 */
@@ -584,4 +588,12 @@ input:checked + .slider:before { transform: translateX(24px); }
   background-color: transparent !important;
   color: var(--text-sub) !important;
   box-shadow: none !important;
+}
+
+@media (max-width: 400px) {
+  .segmented-control label {
+    min-width: 0;
+    padding-inline: 10px;
+    font-size: 0.84rem;
+  }
 }
