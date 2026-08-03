@@ -2,8 +2,20 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>巴哈伊經典卡</title>
+  <title>巴哈伊經典卡｜抽卡與反思提問</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="抽一張經典卡或反思提問，在片刻安靜中閱讀、思考與行動。" />
+  <meta name="theme-color" content="#03A6A6" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://cards.siganmorfu.com/" />
+  <meta property="og:title" content="經典卡抽卡｜抽一張卡，留一個問題給自己" />
+  <meta property="og:description" content="抽一張經典卡或反思提問，在片刻安靜中閱讀、思考與行動。" />
+  <meta property="og:image" content="https://cards.siganmorfu.com/og.png" />
+  <meta property="og:image:alt" content="經典卡抽卡與反思提問的卡牌插畫" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="經典卡抽卡｜抽一張卡，留一個問題給自己" />
+  <meta name="twitter:description" content="抽一張經典卡或反思提問，在片刻安靜中閱讀、思考與行動。" />
+  <meta name="twitter:image" content="https://cards.siganmorfu.com/og.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -33,6 +45,9 @@
           
           <input type="radio" name="mode" id="mode-hiddenen" value="hiddenen">
           <label for="mode-hiddenen">隱言經 (英)</label>
+
+          <input type="radio" name="mode" id="mode-questions" value="questions">
+          <label for="mode-questions">反思提問</label>
         </div>
       </div>
     </header>
@@ -107,6 +122,48 @@
           </button>
         </section>
       </div>
+
+      <div id="questionModeGroup" style="display: none;">
+        <section class="deck-section">
+          <div id="deckQuestion" class="deck-stack" role="button" tabindex="0" aria-label="抽一個反思問題">
+            <img src="./imgs/Back.png" alt="反思提問卡背面" />
+          </div>
+        </section>
+
+        <section class="card-display" id="questionCardDisplay">
+          <div class="card-inner" id="questionCardInner" aria-live="polite" aria-atomic="true">
+            <span id="questionCategory" class="question-category" hidden></span>
+            <h2 class="card-name">給自己一點思考的空間</h2>
+            <p id="questionText" class="question-text">
+              點擊上方卡組或下方按鈕，抽一個此刻值得思考的問題。
+            </p>
+            <p id="questionResource" class="question-resource" hidden></p>
+            <p class="question-note">不急著找到答案，先留意心裡浮現了什麼。</p>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="drawQuestionButton" class="btn primary" disabled>
+            抽問題
+          </button>
+        </section>
+
+        <section class="question-search" aria-labelledby="questionSearchTitle">
+          <h2 id="questionSearchTitle">搜尋問題</h2>
+          <label class="search-label" for="questionSearchInput">依主題、來源或關鍵字尋找</label>
+          <input
+            id="questionSearchInput"
+            class="search-input"
+            type="search"
+            inputmode="search"
+            placeholder="例如：服務、社區、B13"
+            autocomplete="off"
+            disabled
+          />
+          <p id="questionSearchStatus" class="search-status" aria-live="polite"></p>
+          <div id="questionSearchResults" class="question-results"></div>
+        </section>
+      </div>
       
       <section class="status" id="mainStatusSection">
         <p id="statusText">正在初始化...</p>
@@ -119,7 +176,7 @@
     </main>
 
     <footer class="app-footer">
-      <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示與抽卡互動。</small>
+      <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示、抽卡與提問搜尋互動。</small>
       <br />
       <small>Provide by Siganmorfu, Cycle , Masa and Shoghi</small>
     </footer>

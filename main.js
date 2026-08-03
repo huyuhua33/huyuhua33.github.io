@@ -7,6 +7,7 @@ const DATA_SOURCES = {
   divination: "./cards_filled.json",
   hiddenen: "./hidden_words_en.json",
   hiddenzh: "./hidden_words_zh.json",
+  questions: "./questions.json",
 };
 
 const IMAGE_BASE_PATH = "./imgs";
@@ -22,8 +23,10 @@ const CARD_BACKS = {
 let currentCardPool = []; // 當前使用的牌組資料
 let dataCache = {};       // 資料快取
 let isLoading = false;
-let currentMode = "simple"; // simple | divination | hiddenen | hiddenzh
+let currentMode = "simple"; // simple | divination | hiddenen | hiddenzh | questions
 let selectedIndices = [];
+let lastQuestionId = null;
+let dataRequestId = 0;
 
 // === DOM 取得 ===
 const drawButtonEl = document.getElementById("drawButton");
@@ -59,6 +62,19 @@ const textCardNameEl = document.getElementById("textCardName");
 const textCardDescriptionEl = document.getElementById("textCardDescription");
 const drawButtonTextOnlyEl = document.getElementById("drawButtonTextOnly");
 
+// 4. 反思提問模式元素
+const questionModeGroup = document.getElementById("questionModeGroup");
+const deckQuestionEl = document.getElementById("deckQuestion");
+const questionCardDisplayEl = document.getElementById("questionCardDisplay");
+const questionCardInnerEl = document.getElementById("questionCardInner");
+const questionCategoryEl = document.getElementById("questionCategory");
+const questionTextEl = document.getElementById("questionText");
+const questionResourceEl = document.getElementById("questionResource");
+const drawQuestionButtonEl = document.getElementById("drawQuestionButton");
+const questionSearchInputEl = document.getElementById("questionSearchInput");
+const questionSearchStatusEl = document.getElementById("questionSearchStatus");
+const questionSearchResultsEl = document.getElementById("questionSearchResults");
+
 
 // === 初始化 ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -76,6 +92,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // 純文字版抽卡
   if(drawButtonTextOnlyEl) drawButtonTextOnlyEl.addEventListener("click", onDrawCardTextOnly);
   if(deckTextOnlyEl) deckTextOnlyEl.addEventListener("click", onDrawCardTextOnly);
+
+  // 反思提問抽取與搜尋
+  if(drawQuestionButtonEl) drawQuestionButtonEl.addEventListener("click", onDrawQuestion);
+  if(deckQuestionEl) {
+    deckQuestionEl.addEventListener("click", onDrawQuestion);
+    deckQuestionEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        onDrawQuestion();
+      }
+    });
+  }
+  if(questionSearchInputEl) questionSearchInputEl.addEventListener("input", renderQuestionSearchResults);
 
   // 圖片顯示切換
   if(toggleImageEl) toggleImageEl.addEventListener("change", updateImageVisibility);
@@ -131,6 +160,7 @@ function switchMode(mode) {
   if (mode === "divination") {
     simpleModeGroup.style.display = "none";
     textOnlyModeGroup.style.display = "none";
+    questionModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "block";
 
     mainStatusSection.style.display = "none";
@@ -140,15 +170,25 @@ function switchMode(mode) {
     // --- 隱言經 (英/中) 共用純文字介面 ---
     simpleModeGroup.style.display = "none";
     divinationModeDisplay.style.display = "none";
+    questionModeGroup.style.display = "none";
     textOnlyModeGroup.style.display = "flex";
 
     mainStatusSection.style.display = "flex";
     imageToggleContainer.style.display = "none"; // 純文字模式不需要圖片開關
 
+  } else if (mode === "questions") {
+    simpleModeGroup.style.display = "none";
+    divinationModeDisplay.style.display = "none";
+    textOnlyModeGroup.style.display = "none";
+    questionModeGroup.style.display = "flex";
+
+    mainStatusSection.style.display = "flex";
+    imageToggleContainer.style.display = "none";
   } else {
     // --- 簡單版 (預設) ---
     divinationModeDisplay.style.display = "none";
     textOnlyModeGroup.style.display = "none";
+    questionModeGroup.style.display = "none";
     simpleModeGroup.style.display = "flex";
 
     mainStatusSection.style.display = "flex";
@@ -174,23 +214,42 @@ function resetDisplays() {
   if (textCardNameEl) textCardNameEl.textContent = "請抽隱言經";
   if (textCardDescriptionEl) textCardDescriptionEl.textContent = "點擊上方卡組或下方按鈕抽卡。";
 
-  // 3. 移除翻轉動畫 class (確保下次抽卡時動畫能重新觸發)
+  // 3. 重置反思提問
+  if (questionCategoryEl) {
+    questionCategoryEl.textContent = "";
+    questionCategoryEl.hidden = true;
+  }
+  if (questionTextEl) questionTextEl.textContent = "點擊上方卡組或下方按鈕，抽一個此刻值得思考的問題。";
+  if (questionResourceEl) {
+    questionResourceEl.textContent = "";
+    questionResourceEl.hidden = true;
+  }
+  if (questionSearchInputEl) questionSearchInputEl.value = "";
+  if (questionSearchStatusEl) questionSearchStatusEl.textContent = "";
+  if (questionSearchResultsEl) questionSearchResultsEl.innerHTML = "";
+
+  // 4. 移除翻轉動畫 class (確保下次抽卡時動畫能重新觸發)
   if (cardNameEl && cardNameEl.parentElement) {
     cardNameEl.parentElement.classList.remove("flip");
   }
   if (textCardNameEl && textCardNameEl.parentElement) {
     textCardNameEl.parentElement.classList.remove("flip");
   }
+  if (questionCardInnerEl) questionCardInnerEl.classList.remove("flip");
 }
 
 // === 資料載入與快取機制 ===
 async function loadDataForMode(mode) {
+  const requestId = ++dataRequestId;
   isLoading = true;
   setStatus("正在載入資料...");
+  setDrawEnabled(false);
+  if (questionSearchInputEl) questionSearchInputEl.disabled = true;
 
   const targetUrl = DATA_SOURCES[mode] || DATA_SOURCES["simple"];
 
   if (dataCache[targetUrl]) {
+    if (requestId !== dataRequestId || mode !== currentMode) return;
     currentCardPool = dataCache[targetUrl];
     onDataLoaded(mode);
     isLoading = false;
@@ -203,14 +262,17 @@ async function loadDataForMode(mode) {
     const data = await res.json();
 
     dataCache[targetUrl] = data;
+    if (requestId !== dataRequestId || mode !== currentMode) return;
     currentCardPool = data;
 
     onDataLoaded(mode);
   } catch (e) {
     console.error(e);
-    setStatus("資料載入失敗，請確認網頁目錄下是否有 " + targetUrl);
+    if (requestId === dataRequestId && mode === currentMode) {
+      setStatus("資料載入失敗，請確認網頁目錄下是否有 " + targetUrl);
+    }
   } finally {
-    isLoading = false;
+    if (requestId === dataRequestId) isLoading = false;
   }
 }
 
@@ -230,6 +292,11 @@ function onDataLoaded(mode) {
   } else if (mode === "hiddenzh") {
     setStatus(`已載入隱言經(中)：共 ${count} 條聖言。`);
     setDrawEnabled(true);
+  } else if (mode === "questions") {
+    setStatus(`已載入反思提問：共 ${count} 個問題。`);
+    setDrawEnabled(true);
+    questionSearchInputEl.disabled = false;
+    renderQuestionSearchResults();
   }
 }
 
@@ -302,7 +369,109 @@ function renderTextOnlyCard(card) {
 }
 
 // ==========================================
-// 邏輯 C: 占卜版 (Divination)
+// 邏輯 C: 反思提問 (Draw + Search)
+// ==========================================
+function onDrawQuestion() {
+  if (isLoading || !currentCardPool.length || currentMode !== "questions") return;
+
+  const availableQuestions = currentCardPool.length > 1
+    ? currentCardPool.filter(question => question.id !== lastQuestionId)
+    : currentCardPool;
+  const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+  renderQuestionCard(availableQuestions[randomIndex]);
+}
+
+function renderQuestionCard(question) {
+  if (!question) return;
+
+  lastQuestionId = question.id;
+  questionCategoryEl.textContent = question.category || "反思提問";
+  questionCategoryEl.hidden = false;
+  questionTextEl.textContent = question.question || "這個問題正在整理中。";
+  if (question.resource) {
+    questionResourceEl.textContent = `資料來源：${question.resource}`;
+    questionResourceEl.hidden = false;
+  } else {
+    questionResourceEl.textContent = "";
+    questionResourceEl.hidden = true;
+  }
+
+  questionCardInnerEl.classList.remove("flip");
+  void questionCardInnerEl.offsetWidth;
+  questionCardInnerEl.classList.add("flip");
+}
+
+function renderQuestionSearchResults() {
+  if (!questionSearchInputEl || !questionSearchResultsEl || currentMode !== "questions") return;
+
+  const query = questionSearchInputEl.value.trim().toLocaleLowerCase("zh-Hant");
+  questionSearchResultsEl.innerHTML = "";
+
+  if (!query) {
+    questionSearchStatusEl.textContent = `可搜尋 ${currentCardPool.length} 個問題。`;
+    return;
+  }
+
+  const terms = query.split(/\s+/).filter(Boolean);
+  const matches = currentCardPool.filter(question => {
+    const searchableText = [
+      question.category,
+      question.question,
+      question.resource,
+      ...(question.keywords || [])
+    ].filter(Boolean).join(" ").toLocaleLowerCase("zh-Hant");
+
+    return terms.every(term => searchableText.includes(term));
+  });
+
+  const visibleMatches = matches.slice(0, 12);
+  questionSearchStatusEl.textContent = matches.length > 12
+    ? `找到 ${matches.length} 個問題，顯示前 12 個。`
+    : `找到 ${matches.length} 個問題。`;
+
+  if (!matches.length) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "question-search-empty";
+    emptyMessage.textContent = "沒有符合的問題，試試其他關鍵字。";
+    questionSearchResultsEl.appendChild(emptyMessage);
+    return;
+  }
+
+  visibleMatches.forEach(question => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "question-result-item";
+
+    const category = document.createElement("span");
+    category.className = "question-result-category";
+    category.textContent = question.category || "反思提問";
+
+    const text = document.createElement("span");
+    text.className = "question-result-text";
+    text.textContent = question.question;
+
+    const content = document.createElement("span");
+    content.className = "question-result-content";
+    content.appendChild(text);
+
+    if (question.resource) {
+      const resource = document.createElement("span");
+      resource.className = "question-result-resource";
+      resource.textContent = question.resource;
+      content.appendChild(resource);
+    }
+
+    button.append(category, content);
+    button.addEventListener("click", () => {
+      renderQuestionCard(question);
+      questionCardDisplayEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    questionSearchResultsEl.appendChild(button);
+  });
+}
+
+// ==========================================
+// 邏輯 D: 占卜版 (Divination)
 // ==========================================
 function renderFullDeck() {
   if(!cardSpread) return;
@@ -387,6 +556,7 @@ function setStatus(message) {
 function setDrawEnabled(enabled) {
   if(drawButtonEl) drawButtonEl.disabled = !enabled;
   if(drawButtonTextOnlyEl) drawButtonTextOnlyEl.disabled = !enabled;
+  if(drawQuestionButtonEl) drawQuestionButtonEl.disabled = !enabled;
 }
 
 function updateImageVisibility() {
