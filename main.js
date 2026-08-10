@@ -154,11 +154,11 @@ const UI_TEXTS = {
     question_unavailable: "이 질문은 준비 중입니다.",
     question_resource_prefix: "출처: ",
     question_search_empty: "일치하는 질문이 없습니다. 다른 키워드로 검색해 보세요.",
-    question_status_loaded: count => `성찰 질문 ${count}개를 불러왔습니다.`,
-    question_search_available: count => `${count}개의 질문을 검색할 수 있습니다.`,
-    question_search_found: count => `${count}개의 질문을 찾았습니다.`,
-    question_search_limited: count => `${count}개를 찾았습니다. 처음 12개를 표시합니다.`,
-    card_status_loaded: count => `카드 ${count}장을 불러왔습니다.`
+    question_status_loaded: count => `성찰 질문 ${count} 개를 불러왔습니다.`,
+    question_search_available: count => `${count} 개의 질문을 검색할 수 있습니다.`,
+    question_search_found: count => `${count} 개의 질문을 찾았습니다.`,
+    question_search_limited: count => `${count} 개를 찾았습니다. 처음 12개를 표시합니다.`,
+    card_status_loaded: count => `카드 ${count} 장을 불러왔습니다.`
   }
 };
 
