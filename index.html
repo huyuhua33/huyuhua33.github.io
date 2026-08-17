@@ -88,11 +88,6 @@
           </div>
         </section>
 
-        <details class="cardlist" id="cardListPanel">
-          <summary data-i18n="ui_cardlist_summary">卡牌清單</summary>
-          <div id="cardList" class="cardlist-body"></div>
-        </details>
-
         <section class="card-display" id="cardDisplay" style="display: none;">
           <div class="card-inner">
             <div class="card-image-wrapper" id="cardImageWrapper">
@@ -169,6 +164,26 @@
           <div id="questionSearchResults" class="question-results"></div>
         </section>
       </div>
+
+      <section class="card-browser" id="cardBrowser" aria-labelledby="cardSearchTitle">
+        <h2 id="cardSearchTitle" data-i18n="card_search_title">搜尋與瀏覽卡牌</h2>
+        <label class="search-label" for="cardSearchInput" data-i18n="card_search_label">依卡號或經文內容搜尋</label>
+        <input
+          id="cardSearchInput"
+          class="search-input"
+          type="search"
+          inputmode="search"
+          placeholder="例如：正義、純潔、3"
+          data-i18n-placeholder="card_search_placeholder"
+          autocomplete="off"
+          disabled
+        />
+        <p id="cardSearchStatus" class="search-status" aria-live="polite"></p>
+        <details class="cardlist" id="cardListPanel" open>
+          <summary data-i18n="ui_cardlist_summary">卡牌清單</summary>
+          <div id="cardList" class="cardlist-body" role="list"></div>
+        </details>
+      </section>
       
       <section class="status" id="mainStatusSection">
         <p id="statusText">正在初始化...</p>
@@ -181,9 +196,9 @@
     </main>
 
     <footer class="app-footer">
-      <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示、抽卡與提問搜尋互動。</small><br />
+      <small>本頁不會儲存任何個人資料，僅做卡牌內容顯示、抽卡、卡牌與提問搜尋互動。</small><br />
       <small>This page will not store any personal information,</small><br />
-      <small>it will only display card content, draw cards, and search reflection questions.</small><br />
+      <small>it will only display card content, draw cards, and search cards or reflection questions.</small><br />
       <small>Website Setup by Siganmorfu.</small><br />
       <small>Website Design by Cycle.</small><br />
       <small>Public Relations by Masa.</small><br />

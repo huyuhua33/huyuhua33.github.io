@@ -189,9 +189,24 @@ input:checked + .slider:before { transform: translateX(24px); }
   outline-offset: 4px;
 }
 
-/* --- 卡牌清單樣式 --- */
+/* --- 卡牌搜尋與清單樣式 --- */
+.card-browser {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.card-browser h2 {
+  margin: 0 0 6px;
+  color: var(--text-main);
+  font-size: 1.08rem;
+}
+
 .cardlist {
-  margin: 15px 0;
+  margin: 12px 0 0;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--card-bg);
@@ -207,32 +222,71 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 
 .cardlist-body {
-  max-height: 250px; /* 限制高度，避免列表太長 */
+  max-height: 440px; /* 限制高度，避免列表太長 */
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   padding: 12px;
   border-top: 1px solid var(--border-color);
 }
 
+.cardlist-entry { min-width: 0; }
+
 .cardlist-item {
-  padding: 8px;
-  font-size: 0.85rem;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 92px;
+  padding: 11px 12px;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--border-color);
   background: var(--bg-color);
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
-  text-align: center;
-  transition: background 0.2s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: left;
+  font: inherit;
   color: var(--text-main);
+  transition: border-color 0.2s, transform 0.15s ease;
 }
 
 .cardlist-item:hover {
-  background: var(--secondary-color);
-  color: #fff;
+  border-color: var(--primary-color);
+}
+
+.cardlist-item:active { transform: scale(0.99); }
+.cardlist-item:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  outline-offset: 1px;
+}
+
+.cardlist-item-title {
+  color: var(--primary-color);
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.cardlist-item-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-main);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  white-space: pre-line;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.card-search-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--bg-color);
+  color: var(--text-sub);
+  font-size: 0.88rem;
+  text-align: center;
 }
 
 /* --- 卡片顯示區 --- */

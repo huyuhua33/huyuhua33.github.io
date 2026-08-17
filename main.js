@@ -47,6 +47,12 @@ const UI_TEXTS = {
     question_search_available: count => `可搜尋 ${count} 個問題。`,
     question_search_found: count => `找到 ${count} 個問題。`,
     question_search_limited: count => `找到 ${count} 個問題，顯示前 12 個。`,
+    card_search_title: "搜尋與瀏覽卡牌",
+    card_search_label: "依卡號或經文內容搜尋",
+    card_search_placeholder: "例如：正義、純潔、3",
+    card_search_empty: "沒有符合的卡牌，試試其他關鍵字。",
+    card_search_available: count => `清單中共有 ${count} 張卡牌。`,
+    card_search_found: count => `找到 ${count} 張卡牌。`,
     card_status_loaded: count => `已載入牌庫：共 ${count} 張。`
   },
   jp: {
@@ -84,6 +90,12 @@ const UI_TEXTS = {
     question_search_available: count => `${count} 件の質問を検索できます。`,
     question_search_found: count => `${count} 件の質問が見つかりました。`,
     question_search_limited: count => `${count} 件見つかりました。最初の12件を表示しています。`,
+    card_search_title: "カードを検索・閲覧",
+    card_search_label: "カード番号または本文で検索",
+    card_search_placeholder: "例：正義、純粋、3",
+    card_search_empty: "一致するカードがありません。別のキーワードをお試しください。",
+    card_search_available: count => `リストに ${count} 枚のカードがあります。`,
+    card_search_found: count => `${count} 枚のカードが見つかりました。`,
     card_status_loaded: count => `カードを ${count} 枚読み込みました。`
   },
   en: {
@@ -121,6 +133,12 @@ const UI_TEXTS = {
     question_search_available: count => `${count} questions available to search.`,
     question_search_found: count => `Found ${count} questions.`,
     question_search_limited: count => `Found ${count} questions. Showing the first 12.`,
+    card_search_title: "Search & Browse Cards",
+    card_search_label: "Search by card number or text",
+    card_search_placeholder: "For example: justice, pure, 3",
+    card_search_empty: "No cards matched. Try another keyword.",
+    card_search_available: count => `${count} cards in the list.`,
+    card_search_found: count => `Found ${count} cards.`,
     card_status_loaded: count => `Loaded ${count} cards.`
   },
   kr: {
@@ -158,6 +176,12 @@ const UI_TEXTS = {
     question_search_available: count => `${count}개의 질문을 검색할 수 있습니다.`,
     question_search_found: count => `${count}개의 질문을 찾았습니다.`,
     question_search_limited: count => `${count}개를 찾았습니다. 처음 12개를 표시합니다.`,
+    card_search_title: "카드 검색 및 찾아보기",
+    card_search_label: "카드 번호 또는 본문으로 검색",
+    card_search_placeholder: "예: 정의, 순수, 3",
+    card_search_empty: "일치하는 카드가 없습니다. 다른 검색어를 사용해 보세요.",
+    card_search_available: count => `목록에 카드 ${count}장이 있습니다.`,
+    card_search_found: count => `카드 ${count}장을 찾았습니다.`,
     card_status_loaded: count => `카드 ${count}장을 불러왔습니다.`
   }
 };
@@ -222,6 +246,12 @@ const questionSearchInputEl = document.getElementById("questionSearchInput");
 const questionSearchStatusEl = document.getElementById("questionSearchStatus");
 const questionSearchResultsEl = document.getElementById("questionSearchResults");
 
+// 經典卡與隱言經共用的搜尋／清單元素
+const cardBrowserEl = document.getElementById("cardBrowser");
+const cardSearchInputEl = document.getElementById("cardSearchInput");
+const cardSearchStatusEl = document.getElementById("cardSearchStatus");
+const cardListEl = document.getElementById("cardList");
+
 // === 初始化 ===
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -249,6 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   if(questionSearchInputEl) questionSearchInputEl.addEventListener("input", renderQuestionSearchResults);
+  if(cardSearchInputEl) cardSearchInputEl.addEventListener("input", renderCardList);
 
   if(toggleImageEl) toggleImageEl.addEventListener("change", updateImageVisibility);
   if(themeToggleCheckbox) {
@@ -349,6 +380,7 @@ function updateLayout() {
   textOnlyModeGroup.style.display = "none";
   divinationModeDisplay.style.display = "none";
   questionModeGroup.style.display = "none";
+  if (cardBrowserEl) cardBrowserEl.style.display = "none";
 
   if (source === "questions") {
     questionModeGroup.style.display = "flex";
@@ -367,6 +399,7 @@ function updateLayout() {
       simpleModeGroup.style.display = "flex";
       imageToggleContainer.style.display = "inline-flex";
     }
+    if (cardBrowserEl) cardBrowserEl.style.display = "block";
   }
 
   updateCardBackImage();
@@ -403,6 +436,7 @@ async function loadData() {
   setStatus(texts.ui_status_loading);
   setDrawEnabled(false);
   if (questionSearchInputEl) questionSearchInputEl.disabled = true;
+  if (cardSearchInputEl) cardSearchInputEl.disabled = true;
 
   const targetUrl = getTargetJsonPath();
 
@@ -443,6 +477,7 @@ function onDataLoaded() {
     renderQuestionSearchResults();
   } else {
     setStatus(texts.card_status_loaded(count));
+    if (cardSearchInputEl) cardSearchInputEl.disabled = false;
     renderCardList();
   }
 
@@ -452,28 +487,79 @@ function onDataLoaded() {
 }
 
 function renderCardList() {
-  const cardListContainer = document.getElementById("cardList");
-  if (!cardListContainer) return;
+  if (!cardListEl || appState.source === "questions") return;
 
-  cardListContainer.innerHTML = ""; 
+  const texts = UI_TEXTS[appState.lang] || UI_TEXTS.zh;
+  const searchLocales = { zh: "zh-Hant", jp: "ja", en: "en", kr: "ko" };
+  const searchLocale = searchLocales[appState.lang] || searchLocales.zh;
+  const query = cardSearchInputEl?.value.trim().toLocaleLowerCase(searchLocale) || "";
+  const terms = query.split(/\s+/).filter(Boolean);
+  const matches = currentCardPool.filter((card, index) => {
+    const searchableText = [
+      card.id,
+      card.name,
+      getCardDisplayName(card, index),
+      card.description
+    ].filter(value => value !== undefined && value !== null).join(" ").toLocaleLowerCase(searchLocale);
 
-  currentCardPool.forEach((card, index) => {
-    const item = document.createElement("div");
-    item.className = "cardlist-item";
-    item.textContent = card.name || `Card ${index + 1}`;
-    
-    item.onclick = () => {
-      if (appState.source === "hidden") {
-        renderCardTextOnly(card);
-      } else {
-        renderCardWithImage(card);
-      }
-      // 確保點擊清單時也會顯示卡片區塊
-      document.getElementById(appState.source === "hidden" ? "textCardDisplay" : "cardDisplay")?.scrollIntoView({ behavior: 'smooth' });
-    };
-    
-    cardListContainer.appendChild(item);
+    return terms.every(term => searchableText.includes(term));
   });
+
+  cardListEl.innerHTML = "";
+  if (cardSearchStatusEl) {
+    cardSearchStatusEl.textContent = query
+      ? texts.card_search_found(matches.length)
+      : texts.card_search_available(currentCardPool.length);
+  }
+
+  if (!matches.length) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "card-search-empty";
+    emptyMessage.textContent = texts.card_search_empty;
+    cardListEl.appendChild(emptyMessage);
+    return;
+  }
+
+  matches.forEach(card => {
+    const index = currentCardPool.indexOf(card);
+    const listItem = document.createElement("div");
+    listItem.className = "cardlist-entry";
+    listItem.setAttribute("role", "listitem");
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "cardlist-item";
+
+    const title = document.createElement("span");
+    title.className = "cardlist-item-title";
+    title.textContent = getCardDisplayName(card, index);
+
+    const excerpt = document.createElement("span");
+    excerpt.className = "cardlist-item-excerpt";
+    excerpt.textContent = card.description || "";
+
+    button.append(title, excerpt);
+    button.addEventListener("click", () => {
+      if (appState.source === "hidden") renderCardTextOnly(card);
+      else renderCardWithImage(card);
+
+      document.getElementById(appState.source === "hidden" ? "textCardDisplay" : "cardDisplay")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    listItem.appendChild(button);
+    cardListEl.appendChild(listItem);
+  });
+}
+
+function getCardDisplayName(card, index = 0) {
+  const number = card.name || card.id || index + 1;
+  if (appState.source !== "hidden") return String(number);
+
+  if (appState.lang === "en") return `Hidden Words No. ${number}`;
+  if (appState.lang === "jp") return `かくされたる言葉 第 ${number} 条`;
+  if (appState.lang === "kr") return `숨겨진 말씀 제 ${number} 번`;
+  return `隱言經 第 ${number} 條`;
 }
 
 function onDrawCard() {
@@ -512,24 +598,7 @@ function renderCardTextOnly(card) {
   // 顯示卡片區塊
   if(textCardDisplayEl) textCardDisplayEl.style.display = "flex";
 
-  let prefix = "";
-  let suffix = "";
-  if (appState.lang === "en") {
-    prefix = "Hidden Words No. ";
-  } else if (appState.lang === "zh") {
-    prefix = "隱言經 第 ";
-    suffix = " 條";
-  } else if (appState.lang === "jp") {
-    prefix = "かくされたる言葉 第 ";
-    suffix = " 条";
-  } else if (appState.lang === "kr") {
-    prefix = "숨겨진 말씀 제 ";
-    suffix = " 번";
-  }
-
-  let title = `${prefix}${card.name || card.id}${suffix}`;
-
-  textCardNameEl.textContent = title;
+  textCardNameEl.textContent = getCardDisplayName(card);
   textCardDescriptionEl.textContent = card.description || "";
 
   triggerAnimation(textCardNameEl.parentElement);
@@ -789,6 +858,9 @@ function resetDisplays() {
   if (questionSearchInputEl) questionSearchInputEl.value = "";
   if (questionSearchStatusEl) questionSearchStatusEl.textContent = "";
   if (questionSearchResultsEl) questionSearchResultsEl.innerHTML = "";
+  if (cardSearchInputEl) cardSearchInputEl.value = "";
+  if (cardSearchStatusEl) cardSearchStatusEl.textContent = "";
+  if (cardListEl) cardListEl.innerHTML = "";
   if (questionCardInnerEl) questionCardInnerEl.classList.remove("flip");
 }
 

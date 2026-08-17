@@ -1,0 +1,9 @@
+{
+  "name": "scripture-cards-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/local-server.mjs",
+    "test": "node --test tests/data.test.mjs"
+  }
+}
